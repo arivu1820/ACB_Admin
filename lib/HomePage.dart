@@ -1,4 +1,7 @@
 import 'package:acb_admin/Models/NavItem.dart';
+import 'package:acb_admin/Screens/AMCSubScreen.dart';
+import 'package:acb_admin/Screens/CompletedAMCSubScreen.dart';
+import 'package:acb_admin/Screens/CompletedOrdersScreen.dart';
 import 'package:acb_admin/Screens/OrdersScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:flutter/material.dart';
@@ -9,13 +12,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  
   final PageController _pageController = PageController();
   int _currentPageIndex = 0;
 
   final List<NavItem> navItems = [
     NavItem("Orders"),
+    NavItem("AMC Subscription"),
+    NavItem("Completed Orders"),
+    NavItem("Completed AMC Subscription"),
   ];
 
   @override
@@ -51,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const SizedBox(
-                          width: 40,
+                          width: 20,
                         ),
                         Expanded(
                           child: Text(
@@ -91,8 +95,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 controller: _pageController,
                 onPageChanged: (index) =>
                     setState(() => _currentPageIndex = index),
-                children: const [
-                 OrdersScreen(),
+                children: [
+                  OrdersScreen(),
+                  AMCSubScreen(),
+                  CompletedOrdersScreen(),
+                  CompletedAMCSubScreen(),
                 ],
               ),
             ),
