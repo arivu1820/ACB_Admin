@@ -2,6 +2,7 @@ import 'package:acb_admin/Models/NavItem.dart';
 import 'package:acb_admin/Screens/AMCSubScreen.dart';
 import 'package:acb_admin/Screens/CompletedAMCSubScreen.dart';
 import 'package:acb_admin/Screens/CompletedOrdersScreen.dart';
+import 'package:acb_admin/Screens/GeneralProductsScreen.dart';
 import 'package:acb_admin/Screens/OrdersScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<NavItem> navItems = [
     NavItem("Orders"),
     NavItem("AMC Subscription"),
+    NavItem("General Products"),
     NavItem("Completed Orders"),
     NavItem("Completed AMC Subscription"),
   ];
@@ -98,6 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   OrdersScreen(),
                   AMCSubScreen(),
+                  GeneralProductsScreen(),
                   CompletedOrdersScreen(),
                   CompletedAMCSubScreen(),
                 ],
