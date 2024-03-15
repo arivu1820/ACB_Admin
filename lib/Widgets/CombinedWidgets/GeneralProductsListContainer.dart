@@ -48,6 +48,11 @@ class GeneralProductsListContainer extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
+                   style: TextStyle(
+                    fontFamily: 'LexendRegular',
+                    fontSize: 13,
+                    color: blackColor,
+                  ),
                 ),
               ),
               const SizedBox(
