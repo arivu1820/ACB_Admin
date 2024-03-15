@@ -32,6 +32,7 @@ const lightGray80Color = Color.fromRGBO(236, 236, 236, .8);
 const lightGray50Color = Color.fromRGBO(236, 236, 236, .5);
 
 const darkGrey50Color = Color.fromRGBO(217,217, 217, .5);
+const darkGrey20Color = Color.fromRGBO(217,217, 217, .2);
 
 
 

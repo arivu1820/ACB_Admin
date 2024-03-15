@@ -1,16 +1,17 @@
 import 'package:acb_admin/Theme/Colors.dart';
+import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/TextListContainer.dart';
 import 'package:flutter/material.dart';
 
-class AddGeneralProductsScreen extends StatelessWidget {
-  AddGeneralProductsScreen({super.key});
+class AddProductCategoryScreen extends StatelessWidget {
+  AddProductCategoryScreen({super.key});
 
-  final TextEditingController NameController = TextEditingController();
-  final TextEditingController MRPController = TextEditingController();
-  final TextEditingController DiscountController = TextEditingController();
-  final TextEditingController StockController = TextEditingController();
+  final TextEditingController CategoryNameController = TextEditingController();
+  final TextEditingController TonsController = TextEditingController();
+  final TextEditingController BrandsController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -30,34 +31,29 @@ class AddGeneralProductsScreen extends StatelessWidget {
               child: Column(
                 children: [
                   TextContainer(
-                    controller: NameController,
-                    label: "Name",
-                    limit: 500,
+                    controller: CategoryNameController,
+                    label: "Category Name",
+                    limit: 50,
                     isnum: false,
                   ),
-                  TextContainer(
-                    controller: MRPController,
-                    label: "MRP",
-                    limit: 10,
-                    isnum: true,
-                    minCharacters: 5,
+                  TextListContainer(
+                    controller: TonsController,
+                    label: "Tons",
+                    limit: 20,
+                    isnum: false,
+                    minCharacters: 1,
                   ),
-                  TextContainer(
-                    controller: DiscountController,
-                    label: "Discount",
-                    limit: 3,
-                    isnum: true,
+                  TextListContainer(
+                    controller: BrandsController,
+                    label: "Brands",
+                    limit: 20,
+                    isnum: false,
                     minCharacters: 0,
                   ),
-                  TextContainer(
-                    controller: StockController,
-                    label: "Stock",
-                    limit: 3,
-                    isnum: true,
-                    minCharacters: 10,
+                  const ListItemsandAddItems(category: "Products"),
+                  const SizedBox(
+                    height: 30,
                   ),
-                  SingleImageUploadContainer(),
-                  const SizedBox(height: 30,),
                 ],
               ),
             ),

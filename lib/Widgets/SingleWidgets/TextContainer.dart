@@ -39,7 +39,7 @@ class TextContainer extends StatelessWidget {
             height: 10,
           ),
           TextFormField(
-            keyboardType: isnum ? TextInputType.number : TextInputType.streetAddress,
+            keyboardType: isnum ? TextInputType.number : TextInputType.text,
             maxLength: limit,
             controller: controller,
             inputFormatters: [

@@ -1,16 +1,27 @@
 import 'package:acb_admin/Theme/Colors.dart';
+import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/TextListContainer.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/TextMapContainer.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/UploadImageListContainer.dart';
 import 'package:flutter/material.dart';
 
-class AddGeneralProductsScreen extends StatelessWidget {
-  AddGeneralProductsScreen({super.key});
+class AddProductScreen extends StatelessWidget {
+  AddProductScreen({super.key});
 
   final TextEditingController NameController = TextEditingController();
   final TextEditingController MRPController = TextEditingController();
   final TextEditingController DiscountController = TextEditingController();
   final TextEditingController StockController = TextEditingController();
+  final TextEditingController TonController = TextEditingController();
+  final TextEditingController BrandController = TextEditingController();
+  final TextEditingController OverviewController = TextEditingController();
+  final TextEditingController SpecificationkeyController =
+      TextEditingController();
+  final TextEditingController SpecificationvalueController =
+      TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -21,8 +32,7 @@ class AddGeneralProductsScreen extends StatelessWidget {
       appBar: AppBar(),
       body: SingleChildScrollView(
         child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             EditandSumbitBtn(),
             Form(
@@ -40,24 +50,48 @@ class AddGeneralProductsScreen extends StatelessWidget {
                     label: "MRP",
                     limit: 10,
                     isnum: true,
-                    minCharacters: 5,
                   ),
                   TextContainer(
                     controller: DiscountController,
                     label: "Discount",
                     limit: 3,
                     isnum: true,
-                    minCharacters: 0,
                   ),
                   TextContainer(
                     controller: StockController,
                     label: "Stock",
                     limit: 3,
                     isnum: true,
-                    minCharacters: 10,
                   ),
-                  SingleImageUploadContainer(),
-                  const SizedBox(height: 30,),
+                  TextContainer(
+                    controller: TonController,
+                    label: "Ton",
+                    limit: 50,
+                    isnum: false,
+                  ),
+                  TextContainer(
+                    controller: BrandController,
+                    label: "Brand",
+                    limit: 50,
+                    isnum: false,
+                  ),
+                  TextListContainer(
+                    controller: OverviewController,
+                    label: "Overview",
+                    limit: 20,
+                    isnum: false,
+                  ),
+                  TextMapContainer(
+                    limit: 20,
+                    isnum: false,
+                    firstcontroller: SpecificationkeyController,
+                    secondcontroller: SpecificationvalueController,
+                    label: 'Specification',
+                  ),
+                  UploadImageListContainer(label: 'label'),
+                  const SizedBox(
+                    height: 30,
+                  ),
                 ],
               ),
             ),

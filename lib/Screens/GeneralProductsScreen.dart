@@ -1,7 +1,7 @@
 import 'package:acb_admin/Screens/AddGeneralProductsScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/OrdersContainer.dart';
-import 'package:acb_admin/Widgets/CombinedWidgets/GeneralProductsListContainer.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/GeneralProductsListContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
