@@ -5,6 +5,7 @@ import 'package:acb_admin/Screens/CompletedOrdersScreen.dart';
 import 'package:acb_admin/Screens/GeneralProductsScreen.dart';
 import 'package:acb_admin/Screens/OrdersScreen.dart';
 import 'package:acb_admin/Screens/ProductsScreen.dart';
+import 'package:acb_admin/Screens/ServicesScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,8 @@ class _MyHomePageState extends State<MyHomePage> {
     NavItem("AMC Subscription"),
     NavItem("General Products"),
     NavItem("AC Products"),
+        NavItem("Services"),
+
     NavItem("Completed Orders"),
     NavItem("Completed AMC Subscription"),
   ];
@@ -104,6 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   AMCSubScreen(),
                   GeneralProductsScreen(),
                   ProductsScreen(),
+                  ServicesScreen(),
                   CompletedOrdersScreen(),
                   CompletedAMCSubScreen(),
                 ],

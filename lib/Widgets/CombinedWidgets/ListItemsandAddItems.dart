@@ -6,10 +6,14 @@ import 'package:flutter/widgets.dart';
 
 class ListItemsandAddItems extends StatelessWidget {
   final String category;
+  final String name;
+  final Widget screen;
 
   const ListItemsandAddItems({
     Key? key,
     required this.category,
+    required this.name,
+    required this.screen,
   }) : super(key: key);
 
   @override
@@ -27,7 +31,7 @@ class ListItemsandAddItems extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: Text(
-                    '$category',
+                    '$name',
                     style: const TextStyle(
                       fontFamily: 'LexendRegular',
                       fontSize: 20,
@@ -40,7 +44,7 @@ class ListItemsandAddItems extends StatelessWidget {
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => AddProductScreen()),
+                        builder: (context) => screen),
                   ),
                 child: Container(
                   width: 200,

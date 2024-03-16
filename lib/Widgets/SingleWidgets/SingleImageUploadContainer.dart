@@ -3,7 +3,8 @@ import 'package:acb_admin/Widgets/SingleWidgets/UploadBtn.dart';
 import 'package:flutter/material.dart';
 
 class SingleImageUploadContainer extends StatelessWidget {
-  const SingleImageUploadContainer({super.key});
+  final String name;
+  const SingleImageUploadContainer({super.key,required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -12,9 +13,9 @@ class SingleImageUploadContainer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-         const Text(
-            'Image',
-            style: TextStyle(fontFamily: 'LexendRegular', fontSize: 20),
+          Text(
+            name,
+            style:const TextStyle(fontFamily: 'LexendRegular', fontSize: 20),
           ),
           const SizedBox(height: 10,),
           Container(

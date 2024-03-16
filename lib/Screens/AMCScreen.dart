@@ -1,16 +1,17 @@
+import 'package:acb_admin/Screens/AddAMCSchemeScreen.dart';
+import 'package:acb_admin/Screens/CommonServicesScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
+import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/TextListContainer.dart';
 import 'package:flutter/material.dart';
 
-class AddGeneralProductsScreen extends StatelessWidget {
-  AddGeneralProductsScreen({super.key});
+class AMCScreen extends StatelessWidget {
+  AMCScreen({super.key});
 
-  final TextEditingController NameController = TextEditingController();
-  final TextEditingController MRPController = TextEditingController();
-  final TextEditingController DiscountController = TextEditingController();
-  final TextEditingController StockController = TextEditingController();
+  final TextEditingController ServiceNameController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -21,8 +22,7 @@ class AddGeneralProductsScreen extends StatelessWidget {
       appBar: AppBar(),
       body: SingleChildScrollView(
         child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             EditandSumbitBtn(),
             Form(
@@ -30,34 +30,34 @@ class AddGeneralProductsScreen extends StatelessWidget {
               child: Column(
                 children: [
                   TextContainer(
-                    controller: NameController,
-                    label: "Name",
-                    limit: 500,
+                    controller: ServiceNameController,
+                    label: "Service Name",
+                    limit: 50,
                     isnum: false,
                   ),
-                  TextContainer(
-                    controller: MRPController,
-                    label: "MRP",
-                    limit: 10,
-                    isnum: true,
-                    minCharacters: 5,
+                  SingleImageUploadContainer(
+                    name: 'Banner Image',
                   ),
-                  TextContainer(
-                    controller: DiscountController,
-                    label: "Discount",
-                    limit: 3,
-                    isnum: true,
-                    minCharacters: 0,
+                  SingleImageUploadContainer(
+                    name: 'Split AC Image',
                   ),
-                  TextContainer(
-                    controller: StockController,
-                    label: "Stock",
-                    limit: 3,
-                    isnum: true,
-                    minCharacters: 10,
+                  SingleImageUploadContainer(
+                    name: 'Window AC Image',
                   ),
-                  SingleImageUploadContainer(name: 'Image',),
-                  const SizedBox(height: 30,),
+                  SingleImageUploadContainer(
+                    name: 'Cassette AC Image',
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                   ListItemsandAddItems(
+                    category: "SCHEME",
+                    name: 'AMC',
+                    screen: AddAMCSchemeScreen(),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
                 ],
               ),
             ),

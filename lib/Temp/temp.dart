@@ -5,6 +5,10 @@ class TempScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text("This is temp screen, Used for testing purpose."),);
+    return Scaffold(
+      appBar: AppBar(),
+        body: const Center(
+      child: Text("This is temp screen, Used for testing purpose."),
+    ));
   }
 }

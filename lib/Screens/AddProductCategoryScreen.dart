@@ -1,3 +1,4 @@
+import 'package:acb_admin/Screens/AddProductScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
@@ -50,7 +51,7 @@ class AddProductCategoryScreen extends StatelessWidget {
                     isnum: false,
                     minCharacters: 0,
                   ),
-                  const ListItemsandAddItems(category: "Products"),
+                   ListItemsandAddItems(category: "Products",name: 'Products',screen: AddProductScreen(),),
                   const SizedBox(
                     height: 30,
                   ),

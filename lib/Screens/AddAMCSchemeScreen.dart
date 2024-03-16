@@ -1,16 +1,26 @@
 import 'package:acb_admin/Theme/Colors.dart';
+import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/BenefitsContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/TextListContainer.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/TextMapContainer.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/UploadImageListContainer.dart';
 import 'package:flutter/material.dart';
 
-class AddGeneralProductsScreen extends StatelessWidget {
-  AddGeneralProductsScreen({super.key});
+class AddAMCSchemeScreen extends StatelessWidget {
+  AddAMCSchemeScreen({super.key});
 
   final TextEditingController NameController = TextEditingController();
   final TextEditingController MRPController = TextEditingController();
   final TextEditingController DiscountController = TextEditingController();
-  final TextEditingController StockController = TextEditingController();
+  final TextEditingController BenefitsController = TextEditingController();
+  final TextEditingController DescriptionController = TextEditingController();
+  final TextEditingController TotalSparesBenefitsController =
+      TextEditingController();
+  final TextEditingController TotalSparesMRPController =
+      TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -21,8 +31,7 @@ class AddGeneralProductsScreen extends StatelessWidget {
       appBar: AppBar(),
       body: SingleChildScrollView(
         child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             EditandSumbitBtn(),
             Form(
@@ -31,8 +40,14 @@ class AddGeneralProductsScreen extends StatelessWidget {
                 children: [
                   TextContainer(
                     controller: NameController,
-                    label: "Name",
+                    label: "Scheme Name",
                     limit: 500,
+                    isnum: false,
+                  ),
+                  TextContainer(
+                    controller: DescriptionController,
+                    label: "Description",
+                    limit: 20,
                     isnum: false,
                   ),
                   TextContainer(
@@ -40,24 +55,35 @@ class AddGeneralProductsScreen extends StatelessWidget {
                     label: "MRP",
                     limit: 10,
                     isnum: true,
-                    minCharacters: 5,
                   ),
                   TextContainer(
                     controller: DiscountController,
                     label: "Discount",
                     limit: 3,
                     isnum: true,
-                    minCharacters: 0,
                   ),
+                  TextListContainer(
+                    controller: BenefitsController,
+                    label: "Benefits",
+                    limit: 20,
+                    isnum: false,
+                  ),
+                  UploadImageListContainer(label: 'Images'),
                   TextContainer(
-                    controller: StockController,
-                    label: "Stock",
-                    limit: 3,
+                    controller: TotalSparesMRPController,
+                    label: "TotalSpares MRP",
+                    limit: 10,
                     isnum: true,
-                    minCharacters: 10,
                   ),
-                  SingleImageUploadContainer(name: 'Image',),
-                  const SizedBox(height: 30,),
+                  TextListContainer(
+                    controller: TotalSparesBenefitsController,
+                    label: "TotalSpares Benefits",
+                    limit: 20,
+                    isnum: false,
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
                 ],
               ),
             ),

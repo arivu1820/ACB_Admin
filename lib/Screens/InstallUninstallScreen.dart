@@ -1,16 +1,16 @@
+import 'package:acb_admin/Screens/CommonServicesScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
+import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/TextListContainer.dart';
 import 'package:flutter/material.dart';
 
-class AddGeneralProductsScreen extends StatelessWidget {
-  AddGeneralProductsScreen({super.key});
+class InstallUninstallScreen extends StatelessWidget {
+ InstallUninstallScreen({super.key});
 
-  final TextEditingController NameController = TextEditingController();
-  final TextEditingController MRPController = TextEditingController();
-  final TextEditingController DiscountController = TextEditingController();
-  final TextEditingController StockController = TextEditingController();
+  final TextEditingController ServiceNameController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -21,8 +21,7 @@ class AddGeneralProductsScreen extends StatelessWidget {
       appBar: AppBar(),
       body: SingleChildScrollView(
         child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             EditandSumbitBtn(),
             Form(
@@ -30,34 +29,25 @@ class AddGeneralProductsScreen extends StatelessWidget {
               child: Column(
                 children: [
                   TextContainer(
-                    controller: NameController,
-                    label: "Name",
-                    limit: 500,
+                    controller: ServiceNameController,
+                    label: "Service Name",
+                    limit: 50,
                     isnum: false,
                   ),
-                  TextContainer(
-                    controller: MRPController,
-                    label: "MRP",
-                    limit: 10,
-                    isnum: true,
-                    minCharacters: 5,
+                  SingleImageUploadContainer(
+                    name: 'Image',
                   ),
-                  TextContainer(
-                    controller: DiscountController,
-                    label: "Discount",
-                    limit: 3,
-                    isnum: true,
-                    minCharacters: 0,
+                  SizedBox(
+                    height: 20,
                   ),
-                  TextContainer(
-                    controller: StockController,
-                    label: "Stock",
-                    limit: 3,
-                    isnum: true,
-                    minCharacters: 10,
+                   ListItemsandAddItems(
+                    category: "Services",
+                    name: 'Install Uninstall',
+                    screen: CommonServicesScreen(),
                   ),
-                  SingleImageUploadContainer(name: 'Image',),
-                  const SizedBox(height: 30,),
+                  const SizedBox(
+                    height: 30,
+                  ),
                 ],
               ),
             ),
