@@ -8,10 +8,12 @@ class TextContainer extends StatelessWidget {
   final bool isOptional;
   final int limit;
   final bool isnum;
+  final bool isedit;
   final int minCharacters; // New property for minimum characters
 
   TextContainer({
     required this.controller,
+    this.isedit = false,
     required this.limit,
     required this.isnum,
     required this.label,
@@ -39,6 +41,7 @@ class TextContainer extends StatelessWidget {
             height: 10,
           ),
           TextFormField(
+            enabled: isedit,
             keyboardType: isnum ? TextInputType.number : TextInputType.text,
             maxLength: limit,
             controller: controller,

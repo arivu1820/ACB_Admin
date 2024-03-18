@@ -2,17 +2,96 @@ import 'package:acb_admin/Theme/Colors.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class AddGeneralProductsScreen extends StatelessWidget {
+class AddGeneralProductsScreen extends StatefulWidget {
   AddGeneralProductsScreen({super.key});
 
+  @override
+  State<AddGeneralProductsScreen> createState() =>
+      _AddGeneralProductsScreenState();
+}
+
+class _AddGeneralProductsScreenState extends State<AddGeneralProductsScreen> {
   final TextEditingController NameController = TextEditingController();
+
   final TextEditingController MRPController = TextEditingController();
+
   final TextEditingController DiscountController = TextEditingController();
+
   final TextEditingController StockController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+
+  bool isEditing = false;
+
+  void _handleEditPressed() {
+    setState(() {
+      isEditing = true;
+    });
+  }
+
+Future<void> _handleSubmitPressed() async {
+  if (isEditing) {
+    setState(() {
+      isEditing = false;
+    });
+    // Handle form submission here
+    if (_formKey.currentState!.validate()) {
+      try {
+        // Access form field values
+        String name = NameController.text;
+        int mrp = int.parse(MRPController.text);
+        int discount = int.parse(DiscountController.text);
+        int stock = int.parse(StockController.text);
+
+        // Upload data to Firebase Firestore
+        await FirebaseFirestore.instance.collection('GeneralProducts').add({
+          'Name': name,
+          'MRP': mrp,
+          'Discount': discount,
+          'Stock': stock,
+          'Image': 'https://image.png',
+          // 'timestamp': FieldValue.serverTimestamp(), // Optional: Add timestamp
+        }).then((value) {
+          // Handle successful upload
+          ScaffoldMessenger.of(context).showSnackBar(
+                       const SnackBar(
+                          content: Text('GeneralProduct added successfully.'),
+                        ),
+                      );
+        }).catchError((error) {
+          // Handle error during upload
+          ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error uploading data: $error'),
+                        ),
+                      );
+        });
+
+        // Navigator.of(context).pop();
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //                const SnackBar(
+        //                   content: Text('GeneralProduct added successfully.'),
+        //                 ),
+        //               );
+
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+                       const SnackBar(
+                          content: Text('Failed to add, Try after sometime!'),
+                        ),
+                      );
+        // Handle parsing error
+        print('Error parsing data: $error');
+      }
+    }
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +100,12 @@ class AddGeneralProductsScreen extends StatelessWidget {
       appBar: AppBar(),
       body: SingleChildScrollView(
         child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            EditandSumbitBtn(),
+            EditandSumbitBtn(
+              onEditPressed: _handleEditPressed,
+              onSubmitPressed: _handleSubmitPressed,
+            ),
             Form(
               key: _formKey,
               child: Column(
@@ -34,30 +115,39 @@ class AddGeneralProductsScreen extends StatelessWidget {
                     label: "Name",
                     limit: 500,
                     isnum: false,
+                    minCharacters: 1,
+                    isedit: isEditing,
                   ),
                   TextContainer(
                     controller: MRPController,
                     label: "MRP",
                     limit: 10,
                     isnum: true,
-                    minCharacters: 5,
+                    minCharacters: 1,
+                    isedit: isEditing,
                   ),
                   TextContainer(
                     controller: DiscountController,
                     label: "Discount",
                     limit: 3,
                     isnum: true,
-                    minCharacters: 0,
+                    minCharacters: 1,
+                    isedit: isEditing,
                   ),
                   TextContainer(
                     controller: StockController,
                     label: "Stock",
                     limit: 3,
                     isnum: true,
-                    minCharacters: 10,
+                    isedit: isEditing,
+                    minCharacters: 1,
                   ),
-                  SingleImageUploadContainer(name: 'Image',),
-                  const SizedBox(height: 30,),
+                  SingleImageUploadContainer(
+                    name: 'Image',
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
                 ],
               ),
             ),
@@ -99,61 +189,61 @@ class AddGeneralProductsScreen extends StatelessWidget {
 //   @override
 //   Widget build(BuildContext context) {
 
-//       void _submitForm(
-//     TextEditingController field1Controller,
-//     TextEditingController field2Controller,
-//     TextEditingController field3Controller,
-//     TextEditingController field4Controller,
-//   ) async {
-//     if (_formKey.currentState!.validate()) {
-//       // Your logic here
-//       Map<String, dynamic> ServiceDetails = {
-//         'HouseNoFloor': field1Controller.text,
-//         'BuildingStreet' : field2Controller.text,
-//         'LandmarkAreaName' : field3Controller.text,
-//         'Contact' : field4Controller.text,
-//         'isSelected' : true,
-//       };
+  //     void _submitForm(
+  //   TextEditingController field1Controller,
+  //   TextEditingController field2Controller,
+  //   TextEditingController field3Controller,
+  //   TextEditingController field4Controller,
+  // ) async {
+  //   if (_formKey.currentState!.validate()) {
+  //     // Your logic here
+  //     Map<String, dynamic> ServiceDetails = {
+  //       'HouseNoFloor': field1Controller.text,
+  //       'BuildingStreet' : field2Controller.text,
+  //       'LandmarkAreaName' : field3Controller.text,
+  //       'Contact' : field4Controller.text,
+  //       'isSelected' : true,
+  //     };
 
-//       try {
+  //     try {
         
-//         await FirebaseFirestore.instance
-//           .collection('Users')
-//           .doc(uid)
-//           .collection('AddedAddress')
-//           .get()
-//           .then((querySnapshot) {
-//         for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-//           doc.reference.update({'isSelected': false});
-//         }
-//       });
+  //       await FirebaseFirestore.instance
+  //         .collection('Users')
+  //         .doc(uid)
+  //         .collection('AddedAddress')
+  //         .get()
+  //         .then((querySnapshot) {
+  //       for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+  //         doc.reference.update({'isSelected': false});
+  //       }
+  //     });
       
-//         await DatabaseHelper.addaddress(
-//           uid: uid,
-//           serviceDetails: ServiceDetails,
-//         );
+  //       await DatabaseHelper.addaddress(
+  //         uid: uid,
+  //         serviceDetails: ServiceDetails,
+  //       );
 
-//         Navigator.of(context).pop();
+  //       Navigator.of(context).pop();
 
-//         ScaffoldMessenger.of(context).showSnackBar(
-//                         SnackBar(
-//                           content: Text('Address add successfully'),
-//                         ),
-//                       );
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //                       SnackBar(
+  //                         content: Text('Address add successfully'),
+  //                       ),
+  //                     );
 
-//         // You can access the text from the controllers like this:
+  //       // You can access the text from the controllers like this:
 
-//         // Do something with the values if needed.
-//       } catch (error) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//                         SnackBar(
-//                           content: Text('Address not added'),
-//                         ),
-//                       );
-//         // Handle error
-//       }
-//     } 
-//   }
+  //       // Do something with the values if needed.
+  //     } catch (error) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //                       SnackBar(
+  //                         content: Text('Address not added'),
+  //                       ),
+  //                     );
+  //       // Handle error
+  //     }
+  //   } 
+  // }
 
 //     return Scaffold(
 //       backgroundColor: whiteColor,
