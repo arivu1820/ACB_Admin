@@ -1,13 +1,28 @@
-import 'package:acb_admin/Theme/Colors.dart';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AddGeneralProductsScreen extends StatefulWidget {
-  AddGeneralProductsScreen({super.key});
+  final String name;
+  final String img;
+  final num stock;
+  final num mrp;
+  final num discount;
+  final String productId;
+  AddGeneralProductsScreen(
+      {Key? key,
+      this.discount = 0,
+      this.img = '',
+      this.mrp = 0,
+      this.name = '',
+      this.productId = '',
+      this.stock = 0})
+      : super(key: key);
 
   @override
   State<AddGeneralProductsScreen> createState() =>
@@ -15,17 +30,23 @@ class AddGeneralProductsScreen extends StatefulWidget {
 }
 
 class _AddGeneralProductsScreenState extends State<AddGeneralProductsScreen> {
-  final TextEditingController NameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _mrpController = TextEditingController();
+  final TextEditingController _discountController = TextEditingController();
+  final TextEditingController _stockController = TextEditingController();
 
-  final TextEditingController MRPController = TextEditingController();
-
-  final TextEditingController DiscountController = TextEditingController();
-
-  final TextEditingController StockController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.name;
+    _mrpController.text = widget.mrp.toString();
+    _discountController.text = widget.discount.toString();
+    _stockController.text = widget.stock.toString();
+  }
 
   final _formKey = GlobalKey<FormState>();
-
   bool isEditing = false;
+  Uint8List? _imageBytes;
 
   void _handleEditPressed() {
     setState(() {
@@ -33,70 +54,125 @@ class _AddGeneralProductsScreenState extends State<AddGeneralProductsScreen> {
     });
   }
 
-Future<void> _handleSubmitPressed() async {
-  if (isEditing) {
-    setState(() {
-      isEditing = false;
-    });
-    // Handle form submission here
-    if (_formKey.currentState!.validate()) {
-      try {
-        // Access form field values
-        String name = NameController.text;
-        int mrp = int.parse(MRPController.text);
-        int discount = int.parse(DiscountController.text);
-        int stock = int.parse(StockController.text);
+  Future<void> _handleSubmitPressed() async {
+    if (isEditing) {
+      setState(() {
+        isEditing = false;
+      });
 
-        // Upload data to Firebase Firestore
-        await FirebaseFirestore.instance.collection('GeneralProducts').add({
-          'Name': name,
-          'MRP': mrp,
-          'Discount': discount,
-          'Stock': stock,
-          'Image': 'https://image.png',
-          // 'timestamp': FieldValue.serverTimestamp(), // Optional: Add timestamp
-        }).then((value) {
-          // Handle successful upload
+      if (_formKey.currentState!.validate()) {
+        try {
+          String name = _nameController.text;
+          int mrp = int.parse(_mrpController.text);
+          int discount = int.parse(_discountController.text);
+          int stock = int.parse(_stockController.text);
+
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          );
+
+          final imageUrl = await _uploadImage();
+
+          if (widget.productId.isNotEmpty) {
+            await FirebaseFirestore.instance
+                .collection('GeneralProducts')
+                .doc(widget.productId)
+                .set({
+              'Name': name,
+              'MRP': mrp,
+              'Discount': discount,
+              'Stock': stock,
+              'Image': imageUrl ?? widget.img,
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Changes added successfully.'),
+              ),
+            );
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          } else if (imageUrl != null) {
+            await FirebaseFirestore.instance.collection('GeneralProducts').add({
+              'Name': name,
+              'MRP': mrp,
+              'Discount': discount,
+              'Stock': stock,
+              'Image': imageUrl,
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('GeneralProduct added successfully.'),
+              ),
+            );
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to upload image.'),
+              ),
+            );
+                        Navigator.of(context).pop();
+
+          }
+        } catch (error) {
           ScaffoldMessenger.of(context).showSnackBar(
-                       const SnackBar(
-                          content: Text('GeneralProduct added successfully.'),
-                        ),
-                      );
-        }).catchError((error) {
-          // Handle error during upload
-          ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error uploading data: $error'),
-                        ),
-                      );
-        });
-
-        // Navigator.of(context).pop();
-
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //                const SnackBar(
-        //                   content: Text('GeneralProduct added successfully.'),
-        //                 ),
-        //               );
-
-      } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-                       const SnackBar(
-                          content: Text('Failed to add, Try after sometime!'),
-                        ),
-                      );
-        // Handle parsing error
-        print('Error parsing data: $error');
+            const SnackBar(
+              content: Text('Failed to add, Try after sometime!'),
+            ),
+          );
+          print('Error parsing data: $error');
+        }
       }
     }
   }
-}
 
+  Future<String?> _uploadImage() async {
+    if (_imageBytes == null && widget.img.isNotEmpty) {
+      return null;
+    }
+
+    if (_imageBytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select an image first.'),
+        ),
+      );
+      return null;
+    }
+
+    try {
+      final firebase_storage.Reference ref = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('Images/GeneralProducts')
+          .child('${_nameController.text}.jpg');
+      await ref.putData(_imageBytes!);
+      final imageUrl = await ref.getDownloadURL();
+
+      return imageUrl;
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error uploading image: $error'),
+        ),
+      );
+      print("$error");
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: whiteColor,
+      backgroundColor: Colors.white,
       appBar: AppBar(),
       body: SingleChildScrollView(
         child: Column(
@@ -111,7 +187,7 @@ Future<void> _handleSubmitPressed() async {
               child: Column(
                 children: [
                   TextContainer(
-                    controller: NameController,
+                    controller: _nameController,
                     label: "Name",
                     limit: 500,
                     isnum: false,
@@ -119,7 +195,7 @@ Future<void> _handleSubmitPressed() async {
                     isedit: isEditing,
                   ),
                   TextContainer(
-                    controller: MRPController,
+                    controller: _mrpController,
                     label: "MRP",
                     limit: 10,
                     isnum: true,
@@ -127,7 +203,7 @@ Future<void> _handleSubmitPressed() async {
                     isedit: isEditing,
                   ),
                   TextContainer(
-                    controller: DiscountController,
+                    controller: _discountController,
                     label: "Discount",
                     limit: 3,
                     isnum: true,
@@ -135,7 +211,7 @@ Future<void> _handleSubmitPressed() async {
                     isedit: isEditing,
                   ),
                   TextContainer(
-                    controller: StockController,
+                    controller: _stockController,
                     label: "Stock",
                     limit: 3,
                     isnum: true,
@@ -143,7 +219,14 @@ Future<void> _handleSubmitPressed() async {
                     minCharacters: 1,
                   ),
                   SingleImageUploadContainer(
+                    img: widget.img,
+                    isedit: isEditing,
                     name: 'Image',
+                    onImageSelected: (Uint8List? image) {
+                      setState(() {
+                        _imageBytes = image;
+                      });
+                    },
                   ),
                   const SizedBox(
                     height: 30,
@@ -157,161 +240,3 @@ Future<void> _handleSubmitPressed() async {
     );
   }
 }
-
-
-
-
-// import 'package:acbaradise_2024/Models/DataBaseHelper.dart';
-// import 'package:acbaradise_2024/Theme/Colors.dart';
-// import 'package:acbaradise_2024/Widgets/SingleWidgets/AppbarWithCart.dart';
-// import 'package:acbaradise_2024/Widgets/SingleWidgets/CommonBtn.dart';
-// import 'package:acbaradise_2024/Widgets/SingleWidgets/TextContainer.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-// class AddAddressDetailsScreen extends StatelessWidget {
-//   final String uid;
-
-//   final TextEditingController field1Controller = TextEditingController();
-//   final TextEditingController field2Controller = TextEditingController();
-//   final TextEditingController field3Controller = TextEditingController();
-//   final TextEditingController field4Controller = TextEditingController();
-
-//   final _formKey = GlobalKey<FormState>();
-
-//   AddAddressDetailsScreen({required this.uid});
-
-
-
-//   static const LatLng sourcelocaion = LatLng(37.00, 52.3);
-
-//   @override
-//   Widget build(BuildContext context) {
-
-  //     void _submitForm(
-  //   TextEditingController field1Controller,
-  //   TextEditingController field2Controller,
-  //   TextEditingController field3Controller,
-  //   TextEditingController field4Controller,
-  // ) async {
-  //   if (_formKey.currentState!.validate()) {
-  //     // Your logic here
-  //     Map<String, dynamic> ServiceDetails = {
-  //       'HouseNoFloor': field1Controller.text,
-  //       'BuildingStreet' : field2Controller.text,
-  //       'LandmarkAreaName' : field3Controller.text,
-  //       'Contact' : field4Controller.text,
-  //       'isSelected' : true,
-  //     };
-
-  //     try {
-        
-  //       await FirebaseFirestore.instance
-  //         .collection('Users')
-  //         .doc(uid)
-  //         .collection('AddedAddress')
-  //         .get()
-  //         .then((querySnapshot) {
-  //       for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-  //         doc.reference.update({'isSelected': false});
-  //       }
-  //     });
-      
-  //       await DatabaseHelper.addaddress(
-  //         uid: uid,
-  //         serviceDetails: ServiceDetails,
-  //       );
-
-  //       Navigator.of(context).pop();
-
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //                       SnackBar(
-  //                         content: Text('Address add successfully'),
-  //                       ),
-  //                     );
-
-  //       // You can access the text from the controllers like this:
-
-  //       // Do something with the values if needed.
-  //     } catch (error) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //                       SnackBar(
-  //                         content: Text('Address not added'),
-  //                       ),
-  //                     );
-  //       // Handle error
-  //     }
-  //   } 
-  // }
-
-//     return Scaffold(
-//       backgroundColor: whiteColor,
-//       appBar: AppbarWithCart(
-//         PageName: "Add Address Detail",
-//         iscart: false,
-//         uid: uid,
-//       ),
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             Container(
-//               height: 400,
-//               width: double.infinity,
-//               color: lightBlue25Color,
-//               child: GoogleMap(
-//                   initialCameraPosition:
-//                       CameraPosition(target: sourcelocaion, zoom: 14.5),
-//                   markers: {
-//                     Marker(
-//                         markerId: MarkerId("source"), position: sourcelocaion),
-//                   }),
-//             ),
-//             Form(
-//               key: _formKey,
-//               child: Column(
-//                 children: [
-//                   TextContainer(
-//                     controller: field1Controller,
-//                     label: "House No. & Floor",
-//                     limit: 15,
-//                     isnum: false,
-//                   ),
-//                   TextContainer(
-//                     controller: field2Controller,
-//                     label: "Building & Street",
-//                     limit: 50,
-//                     isnum: false,
-//                     minCharacters: 5,
-//                   ),
-//                   TextContainer(
-//                     controller: field3Controller,
-//                     label: "Landmark & Area Name (Optional)",
-//                     isOptional: true,
-//                     limit: 50,
-//                     isnum: false,
-//                     minCharacters: 0,
-//                   ),
-//                   TextContainer(
-//                     controller: field4Controller,
-//                     label: "Contact No.",
-//                     limit: 10,
-//                     isnum: true,
-//                     minCharacters: 10,
-//                   ),
-//                   CommonBtn(
-//   BtnName: "Save Address",
-//   function: () => _submitForm(field1Controller, field2Controller, field3Controller, field4Controller),
-//   isSelected: true,
-// ),
-
-
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

@@ -1,21 +1,216 @@
-// import 'package:acbaradise_2024/Widgets/CombinedWidgets/InstallUninstall.dart';
-// import 'package:acbaradise_2024/Widgets/CombinedWidgets/InstallUninstallContentContainer.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-// import 'package:acbaradise_2024/Widgets/CombinedWidgets/HomePageProductsList.dart';
+// import 'package:acb_admin/Widgets/CombinedWidgets/InstallUninstall.dart';
+// import 'package:acb_admin/Widgets/CombinedWidgets/InstallUninstallContentContainer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+// import 'package:acb_admin/Widgets/CombinedWidgets/HomePageProductsList.dart';
 
-// class DatabaseHelper {
-//   static Future<String?> getUid() async {
-//     User? user = await FirebaseAuth.instance.currentUser;
+class DatabaseHelper {
+  static Future<String?> getUid() async {
+    User? user = await FirebaseAuth.instance.currentUser;
 
-//     if (user != null) {
-//       return user.uid;
-//     } else {
-//       // User is not logged in
-//       return null;
-//     }
-//   }
+    if (user != null) {
+      return user.uid;
+    } else {
+      // User is not logged in
+      return null;
+    }
+  }
+
+  static removeGeneralProduct(BuildContext context, String productId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove General Product?'),
+          content: const Text(
+              'Are you sure you want to remove this product? This action will reflect for all users.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                FirebaseFirestore.instance
+                    .collection('GeneralProducts')
+                    .doc(productId)
+                    .delete()
+                    .then((value) {
+                  print('Product with ID $productId removed successfully');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Product removed successfully'),
+                    ),
+                  );
+                }).catchError((error) {
+                  print('Failed to remove product: $error');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to remove product'),
+                    ),
+                  );
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static removeProductCategory(BuildContext context, String productId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove Category?'),
+          content: const Text(
+              'Are you sure you want to remove this Category? This action will reflect for all users.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                FirebaseFirestore.instance
+                    .collection('Categories')
+                    .doc(productId)
+                    .delete()
+                    .then((value) {
+                  print('Category with ID $productId removed successfully');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Category removed successfully'),
+                    ),
+                  );
+                }).catchError((error) {
+                  print('Failed to remove category: $error');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to remove category'),
+                    ),
+                  );
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static removeProduct(
+      BuildContext context, String productId, String categoryId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove Product?'),
+          content: const Text(
+              'Are you sure you want to remove this product? This action will reflect for all users.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                FirebaseFirestore.instance
+                    .collection('Categories')
+                    .doc(categoryId)
+                    .collection('Products')
+                    .doc(productId)
+                    .delete()
+                    .then((value) {
+                  print('Product with ID $productId removed successfully');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Product removed successfully'),
+                    ),
+                  );
+                }).catchError((error) {
+                  print('Failed to remove product: $error');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to remove product'),
+                    ),
+                  );
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static removeService(BuildContext context, String productId,
+      String categoryId, String categoryName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove Service?'),
+          content: const Text(
+              'Are you sure you want to remove this product? This action will reflect for all users.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                FirebaseFirestore.instance
+                    .collection('Services')
+                    .doc('hWHRjpawA5D6OTbrjn3h')
+                    .collection('Categories')
+                    .doc(categoryId)
+                    .collection(categoryName)
+                    .doc(productId)
+                    .delete()
+                    .then((value) {
+                  print('Service with ID $productId removed successfully');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Service removed successfully'),
+                    ),
+                  );
+                }).catchError((error) {
+                  print('Failed to remove service: $error');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to remove service'),
+                    ),
+                  );
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+
 
 // //#######################################################################################################//
 

@@ -2,19 +2,125 @@ import 'package:acb_admin/Screens/AddProductScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
-import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextListContainer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class AddProductCategoryScreen extends StatelessWidget {
-  AddProductCategoryScreen({super.key});
+class AddProductCategoryScreen extends StatefulWidget {
+  final String category;
+  final List<dynamic> tons;
+  final List<dynamic> brands;
+  final String categoryId;
+  AddProductCategoryScreen(
+      {super.key,
+      this.category = '',
+      this.brands = const [],
+      this.tons = const [],
+      this.categoryId = ""});
 
+  @override
+  State<AddProductCategoryScreen> createState() =>
+      _AddProductCategoryScreenState();
+}
+
+class _AddProductCategoryScreenState extends State<AddProductCategoryScreen> {
   final TextEditingController CategoryNameController = TextEditingController();
+
   final TextEditingController TonsController = TextEditingController();
+
   final TextEditingController BrandsController = TextEditingController();
+  List<dynamic> listedtons = [];
+  List<dynamic> listedbrands = [];
+  @override
+  void initState() {
+    super.initState();
+    CategoryNameController.text = widget.category;
+    listedbrands = widget.brands;
+    listedtons = widget.tons;
+  }
 
   final _formKey = GlobalKey<FormState>();
+
+  bool isEditing = false;
+
+  void _handleEditPressed() {
+    setState(() {
+      isEditing = true;
+    });
+  }
+
+  Future<void> _handleSubmitPressed() async {
+    if (isEditing) {
+      setState(() {
+        isEditing = false;
+      });
+
+      if (_formKey.currentState!.validate()) {
+        try {
+          String name = CategoryNameController.text;
+          // int mrp = int.parse(_mrpController.text);
+          // int discount = int.parse(_discountController.text);
+
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          );
+
+          if (widget.categoryId.isNotEmpty) {
+            await FirebaseFirestore.instance
+                .collection('Categories')
+                .doc(widget.categoryId)
+                .set({
+              'Name': name,
+              'Brands': listedbrands,
+              'Tons': listedtons,
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Changes added successfully.'),
+              ),
+            );
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          } else if (widget.categoryId.isEmpty) {
+            await FirebaseFirestore.instance.collection('Categories').add({
+              'Name': name,
+              'Brands': listedbrands,
+              'Tons': listedtons,
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('New Category added successfully.'),
+              ),
+            );
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to upload image.'),
+              ),
+            );
+            Navigator.of(context).pop();
+          }
+        } catch (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to add, Try after sometime!'),
+            ),
+          );
+          print('Error parsing data: $error');
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +129,12 @@ class AddProductCategoryScreen extends StatelessWidget {
       appBar: AppBar(),
       body: SingleChildScrollView(
         child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            EditandSumbitBtn(),
+            EditandSumbitBtn(
+              onEditPressed: _handleEditPressed,
+              onSubmitPressed: _handleSubmitPressed,
+            ),
             Form(
               key: _formKey,
               child: Column(
@@ -36,22 +144,45 @@ class AddProductCategoryScreen extends StatelessWidget {
                     label: "Category Name",
                     limit: 50,
                     isnum: false,
+                    isedit: isEditing,
                   ),
                   TextListContainer(
                     controller: TonsController,
                     label: "Tons",
                     limit: 20,
                     isnum: false,
+                    fetchedlist: listedtons,
                     minCharacters: 1,
+                    isedit: isEditing,
+                    onTextListChanged: (List<String> list) {
+                      setState(() {
+                        listedtons = list;
+                      });
+                    },
                   ),
                   TextListContainer(
                     controller: BrandsController,
                     label: "Brands",
+                    fetchedlist: listedbrands,
                     limit: 20,
                     isnum: false,
+                    isedit: isEditing,
                     minCharacters: 0,
+                    onTextListChanged: (List<String> list) {
+                      setState(() {
+                        listedbrands = list;
+                      });
+                    },
                   ),
-                   ListItemsandAddItems(category: "Products",name: 'Products',screen: AddProductScreen(),),
+                  widget.categoryId.isNotEmpty?
+                  ListItemsandAddItems(
+                    category: "Products",
+                    name: widget.category.isNotEmpty
+                        ? widget.category
+                        : "Category",
+                        categoryId: widget.categoryId,
+                    screen: AddProductScreen(categoryId: widget.categoryId,),
+                  ):const SizedBox(),
                   const SizedBox(
                     height: 30,
                   ),
@@ -64,161 +195,3 @@ class AddProductCategoryScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-
-// import 'package:acbaradise_2024/Models/DataBaseHelper.dart';
-// import 'package:acbaradise_2024/Theme/Colors.dart';
-// import 'package:acbaradise_2024/Widgets/SingleWidgets/AppbarWithCart.dart';
-// import 'package:acbaradise_2024/Widgets/SingleWidgets/CommonBtn.dart';
-// import 'package:acbaradise_2024/Widgets/SingleWidgets/TextContainer.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-// class AddAddressDetailsScreen extends StatelessWidget {
-//   final String uid;
-
-//   final TextEditingController field1Controller = TextEditingController();
-//   final TextEditingController field2Controller = TextEditingController();
-//   final TextEditingController field3Controller = TextEditingController();
-//   final TextEditingController field4Controller = TextEditingController();
-
-//   final _formKey = GlobalKey<FormState>();
-
-//   AddAddressDetailsScreen({required this.uid});
-
-
-
-//   static const LatLng sourcelocaion = LatLng(37.00, 52.3);
-
-//   @override
-//   Widget build(BuildContext context) {
-
-//       void _submitForm(
-//     TextEditingController field1Controller,
-//     TextEditingController field2Controller,
-//     TextEditingController field3Controller,
-//     TextEditingController field4Controller,
-//   ) async {
-//     if (_formKey.currentState!.validate()) {
-//       // Your logic here
-//       Map<String, dynamic> ServiceDetails = {
-//         'HouseNoFloor': field1Controller.text,
-//         'BuildingStreet' : field2Controller.text,
-//         'LandmarkAreaName' : field3Controller.text,
-//         'Contact' : field4Controller.text,
-//         'isSelected' : true,
-//       };
-
-//       try {
-        
-//         await FirebaseFirestore.instance
-//           .collection('Users')
-//           .doc(uid)
-//           .collection('AddedAddress')
-//           .get()
-//           .then((querySnapshot) {
-//         for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-//           doc.reference.update({'isSelected': false});
-//         }
-//       });
-      
-//         await DatabaseHelper.addaddress(
-//           uid: uid,
-//           serviceDetails: ServiceDetails,
-//         );
-
-//         Navigator.of(context).pop();
-
-//         ScaffoldMessenger.of(context).showSnackBar(
-//                         SnackBar(
-//                           content: Text('Address add successfully'),
-//                         ),
-//                       );
-
-//         // You can access the text from the controllers like this:
-
-//         // Do something with the values if needed.
-//       } catch (error) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//                         SnackBar(
-//                           content: Text('Address not added'),
-//                         ),
-//                       );
-//         // Handle error
-//       }
-//     } 
-//   }
-
-//     return Scaffold(
-//       backgroundColor: whiteColor,
-//       appBar: AppbarWithCart(
-//         PageName: "Add Address Detail",
-//         iscart: false,
-//         uid: uid,
-//       ),
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             Container(
-//               height: 400,
-//               width: double.infinity,
-//               color: lightBlue25Color,
-//               child: GoogleMap(
-//                   initialCameraPosition:
-//                       CameraPosition(target: sourcelocaion, zoom: 14.5),
-//                   markers: {
-//                     Marker(
-//                         markerId: MarkerId("source"), position: sourcelocaion),
-//                   }),
-//             ),
-//             Form(
-//               key: _formKey,
-//               child: Column(
-//                 children: [
-//                   TextContainer(
-//                     controller: field1Controller,
-//                     label: "House No. & Floor",
-//                     limit: 15,
-//                     isnum: false,
-//                   ),
-//                   TextContainer(
-//                     controller: field2Controller,
-//                     label: "Building & Street",
-//                     limit: 50,
-//                     isnum: false,
-//                     minCharacters: 5,
-//                   ),
-//                   TextContainer(
-//                     controller: field3Controller,
-//                     label: "Landmark & Area Name (Optional)",
-//                     isOptional: true,
-//                     limit: 50,
-//                     isnum: false,
-//                     minCharacters: 0,
-//                   ),
-//                   TextContainer(
-//                     controller: field4Controller,
-//                     label: "Contact No.",
-//                     limit: 10,
-//                     isnum: true,
-//                     minCharacters: 10,
-//                   ),
-//                   CommonBtn(
-//   BtnName: "Save Address",
-//   function: () => _submitForm(field1Controller, field2Controller, field3Controller, field4Controller),
-//   isSelected: true,
-// ),
-
-
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

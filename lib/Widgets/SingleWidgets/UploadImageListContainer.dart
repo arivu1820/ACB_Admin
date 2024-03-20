@@ -1,104 +1,176 @@
-import 'package:acb_admin/Theme/Colors.dart';
-import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UploadImageListContainer extends StatefulWidget {
-  final String label;
+  final String name;
+  final bool isedit;
+  final List<Uint8List> selectedImages;
+  final Function(List<Uint8List>) onImagesSelected;
+  final Function(List<dynamic>) onfetchedImagesremoved;
+  final List<dynamic> imgs;
 
-  UploadImageListContainer({required this.label});
+  const UploadImageListContainer({
+    Key? key,
+    required this.name,
+    this.isedit = false,
+    required this.selectedImages,
+    required this.onfetchedImagesremoved,
+    required this.onImagesSelected,
+    this.imgs = const [],
+
+    // required Null Function(Uint8List? image) onImageSelected,
+  }) : super(key: key);
 
   @override
-  _UploadImageListContainerState createState() => _UploadImageListContainerState();
+  _UploadImageListContainerState createState() =>
+      _UploadImageListContainerState();
 }
 
 class _UploadImageListContainerState extends State<UploadImageListContainer> {
-  List<File> imageList = []; // List to store uploaded images
+  List<dynamic> fetchedimageslist = [];
+  List<dynamic> removedimages = []; // List to hold selected images
 
-  Future<void> _pickImage() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png'], // Specify image file types
+  @override
+  void initState() {
+    super.initState();
+    fetchedimageslist = widget.imgs;
+    // widget.onfetchedImagesremoved(fetchedimageslist);
+  }
+
+  Future<void> _pickImage(BuildContext context) async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery, // For selecting from gallery
+      // You can also add ImageSource.camera to allow capturing from the camera
     );
-
-    if (result != null) {
+    if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
       setState(() {
-        imageList.add(File(result.files.single.path!));
+        widget.selectedImages.add(bytes);
       });
+      widget.onImagesSelected(
+          widget.selectedImages); // Pass the selected images list
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(top: 20, left: 30, right: 30),
+    return Padding(
+      padding: const EdgeInsets.only(left: 30, right: 30, top: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.label,
-            style: const TextStyle(
-              fontSize: 20,
-              fontFamily: "LexendRegular",
-              color: blackColor,
-            ),
+            widget.name,
+            style: const TextStyle(fontFamily: 'LexendRegular', fontSize: 20),
           ),
           const SizedBox(height: 10),
-          GestureDetector(
-            onTap: () => _pickImage(),
-            child: Container(
-                    width: 150,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: lightBlueColor,
-                    ),
-                    child:const Center(
-                      child: Text(
-                        'Upload',
-                        style: TextStyle(
-                          fontFamily: 'LexendRegular',
-                          fontSize: 20,
-                          color: blackColor,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    for (var i = 0; i < fetchedimageslist.length; i++)
+                      Row(
+                        children: [
+                          Stack(children: [
+                            (Image.network(
+                              widget.imgs[i],
+                              height: 80,
+                              width: 80,
+                              fit: BoxFit.cover,
+                            )),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap:!widget.isedit?(){}: () {
+                                  setState(() {
+                                    var removedValue =
+                                        fetchedimageslist.removeAt(i);
+                                    removedimages.add(removedValue);
+                                  });
+                                  widget.onfetchedImagesremoved(
+                                      removedimages);
+                                },
+                                child: const CircleAvatar(
+                                  backgroundColor: Colors.red,
+                                  radius: 10,
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 15,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ]),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    for (var i = 0; i < widget.selectedImages.length; i++)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Stack(
+                          children: [
+                            Image.memory(
+                              widget.selectedImages[i],
+                              height: 80,
+                              width: 80,
+                              fit: BoxFit.cover,
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap:!widget.isedit? (){}: () {
+                                  setState(() {
+                                    widget.selectedImages.removeAt(i);
+                                  });
+                                  widget
+                                      .onImagesSelected(widget.selectedImages);
+                                },
+                                child: const CircleAvatar(
+                                  backgroundColor: Colors.red,
+                                  radius: 10,
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 15,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Stored ${widget.label}', // Label for the list of stored images
-            style: TextStyle(
-              fontSize: 16,
-              fontFamily: "LexendRegular",
-              color: blackColor,
-            ),
-          ),
-          Container(
-            height: 200,
-            width: 400,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: darkGrey50Color),
-            child: ListView.builder(
-              itemCount: imageList.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Image.file(
-                        imageList[index],
-                        fit: BoxFit.contain,
-                        width: 100,
-                        height: 100,
+                      GestureDetector(
+                        onTap: !widget.isedit? (){}: () => _pickImage(context),
+                        child: Container(
+                          height: 80,
+                          width: 80,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blue),
+                          ),
+                          child: Icon(Icons.add_photo_alternate),
+                        ),
                       ),
-                    ],
-                  ),
-                );
-              },
+                  ],
+                ),
+              ],
             ),
           ),
         ],

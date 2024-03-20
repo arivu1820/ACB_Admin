@@ -5,21 +5,26 @@ import 'package:flutter/services.dart';
 class TextMapContainer extends StatefulWidget {
   final TextEditingController firstcontroller;
   final TextEditingController secondcontroller;
-
   final String label;
   final bool isOptional;
   final int limit;
   final bool isnum;
-  final int minCharacters; // New property for minimum characters
+  final bool isedit;
+  final Map<String, dynamic> fetchedmap;
+  final int minCharacters;
+  final Function(Map<String, dynamic>)? onTextmapChanged;
 
   TextMapContainer({
     required this.firstcontroller,
     required this.secondcontroller,
     required this.limit,
     required this.isnum,
+    this.isedit = false,
     required this.label,
+    this.fetchedmap = const {},
+    this.onTextmapChanged,
     this.isOptional = false,
-    this.minCharacters = 1, // Set a default minimum character requirement
+    this.minCharacters = 1,
   });
 
   @override
@@ -27,8 +32,13 @@ class TextMapContainer extends StatefulWidget {
 }
 
 class _TextMapContainerState extends State<TextMapContainer> {
-  List<String> firstTextList = [];
-  List<String> secondTextList = [];
+  Map<String, dynamic> textList = {};
+
+  @override
+  void initState() {
+    super.initState();
+    textList = Map<String, dynamic>.from(widget.fetchedmap);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +62,7 @@ class _TextMapContainerState extends State<TextMapContainer> {
             children: [
               Expanded(
                 child: TextFormField(
+                  enabled: widget.isedit,
                   keyboardType:
                       widget.isnum ? TextInputType.number : TextInputType.text,
                   maxLength: widget.limit,
@@ -73,6 +84,7 @@ class _TextMapContainerState extends State<TextMapContainer> {
               const SizedBox(width: 20),
               Expanded(
                 child: TextFormField(
+                  enabled: widget.isedit,
                   keyboardType:
                       widget.isnum ? TextInputType.number : TextInputType.text,
                   maxLength: widget.limit,
@@ -97,18 +109,26 @@ class _TextMapContainerState extends State<TextMapContainer> {
                   if (widget.firstcontroller.text.isNotEmpty &&
                       widget.secondcontroller.text.isNotEmpty) {
                     setState(() {
-                      firstTextList.add(widget.firstcontroller.text);
+                      textList[widget.firstcontroller.text] =
+                          widget.secondcontroller.text;
                       widget.firstcontroller.clear();
-                      secondTextList.add(widget.secondcontroller.text);
                       widget.secondcontroller.clear();
+                      if (widget.onTextmapChanged != null) {
+                        widget.onTextmapChanged!(textList);
+                      }
                     });
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('Please fill both input fields',style: TextStyle(
-                        fontFamily: 'LexendRegular',
-                        fontSize: 14,
-                      ),),
-                    ));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Please fill both input fields',
+                          style: TextStyle(
+                            fontFamily: 'LexendRegular',
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    );
                   }
                 },
                 child: Container(
@@ -118,7 +138,7 @@ class _TextMapContainerState extends State<TextMapContainer> {
                     borderRadius: BorderRadius.circular(5),
                     color: lightBlueColor,
                   ),
-                  child:const Center(
+                  child: const Center(
                     child: Text(
                       'Add',
                       style: TextStyle(
@@ -135,7 +155,7 @@ class _TextMapContainerState extends State<TextMapContainer> {
           const SizedBox(height: 20),
           Text(
             'Stored ${widget.label}',
-            style:const TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontFamily: "LexendRegular",
               color: blackColor,
@@ -149,15 +169,17 @@ class _TextMapContainerState extends State<TextMapContainer> {
               color: darkGrey20Color,
             ),
             child: ListView.builder(
-              itemCount: firstTextList.length,
+              itemCount: textList.length,
               itemBuilder: (context, index) {
+                final key = textList.keys.elementAt(index);
+                final value = textList[key];
                 return Padding(
                   padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
                   child: Row(
                     children: [
                       Text(
-                        firstTextList[index],
-                        style:const TextStyle(
+                        key,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontFamily: "LexendRegular",
                           color: blackColor,
@@ -165,26 +187,29 @@ class _TextMapContainerState extends State<TextMapContainer> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        secondTextList[index],
-                        style:const TextStyle(
+                        value.toString(),
+                        style: const TextStyle(
                           fontSize: 16,
                           fontFamily: "LexendRegular",
                           color: blackColor,
                         ),
                       ),
-                     const SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            firstTextList.removeAt(index);
-                            secondTextList.removeAt(index);
-                          });
-                        },
+                        onTap: !widget.isedit
+                            ? () {}
+                            : () {
+                                setState(() {
+                                  textList.remove(key);
+                                  if (widget.onTextmapChanged != null) {
+                                    widget.onTextmapChanged!(textList);
+                                  }
+                                });
+                              },
                         child: Image.asset(
                           'Assets/Close_Cross_Icon.png',
                           width: 20,
                           height: 20,
-                          // Adjust the path and size as per your actual image
                         ),
                       ),
                     ],

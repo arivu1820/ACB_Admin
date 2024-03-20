@@ -1,6 +1,7 @@
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 class TextListContainer extends StatefulWidget {
   final TextEditingController controller;
@@ -8,13 +9,20 @@ class TextListContainer extends StatefulWidget {
   final bool isOptional;
   final int limit;
   final bool isnum;
-  final int minCharacters; // New property for minimum characters
+  final bool isedit;
+  final List<dynamic> fetchedlist;
+  final int minCharacters;
+  final Function(List<String>)? onTextListChanged;
+// New property for minimum characters
 
   TextListContainer({
     required this.controller,
     required this.limit,
     required this.isnum,
+    this.isedit = false,
     required this.label,
+    this.fetchedlist = const [],
+    this.onTextListChanged,
     this.isOptional = false,
     this.minCharacters = 1, // Set a default minimum character requirement
   });
@@ -25,6 +33,12 @@ class TextListContainer extends StatefulWidget {
 
 class _TextListContainerState extends State<TextListContainer> {
   List<String> textList = []; // List to store entered text values
+  @override
+  void initState() {
+    super.initState();
+    textList = List<String>.from(
+        widget.fetchedlist.map((dynamic item) => item.toString()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +64,15 @@ class _TextListContainerState extends State<TextListContainer> {
             children: [
               Expanded(
                 child: TextFormField(
-                  keyboardType: widget.isnum ? TextInputType.number : TextInputType.text,
+                  keyboardType:
+                      widget.isnum ? TextInputType.number : TextInputType.text,
                   maxLength: widget.limit,
+                  enabled: widget.isedit,
                   controller: widget.controller,
                   inputFormatters: [
-                    if (widget.isnum) FilteringTextInputFormatter.allow(RegExp(r'\d')), // Allow only numeric characters
+                    if (widget.isnum)
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'\d')), // Allow only numeric characters
                   ],
                   decoration: InputDecoration(
                     filled: true,
@@ -64,17 +82,7 @@ class _TextListContainerState extends State<TextListContainer> {
                       borderSide: BorderSide.none,
                     ),
                   ),
-                  validator: (value) {
-                    if (!widget.isOptional && (value == null || value.isEmpty)) {
-                      return "This field is required";
-                    }
-                
-                    if (value != null && value.length < widget.minCharacters) {
-                      return "Minimum ${widget.minCharacters} characters required";
-                    }
-                
-                    return null;
-                  },
+          
                 ),
               ),
               const SizedBox(width: 10), // Added SizedBox for spacing
@@ -84,6 +92,9 @@ class _TextListContainerState extends State<TextListContainer> {
                     if (widget.controller.text.isNotEmpty) {
                       textList.add(widget.controller.text);
                       widget.controller.clear();
+                      if (widget.onTextListChanged != null) {
+                        widget.onTextListChanged!(textList);
+                      }
                     }
                   });
                 },
@@ -91,15 +102,15 @@ class _TextListContainerState extends State<TextListContainer> {
                   width: 150,
                   height: 60,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5), 
+                    borderRadius: BorderRadius.circular(5),
                     color: lightBlueColor,
                   ),
-                  child: Center(
+                  child:const Center(
                     child: Text(
                       'Add',
                       style: TextStyle(
-                        fontFamily: 'LexendRegular', 
-                        fontSize: 20, 
+                        fontFamily: 'LexendRegular',
+                        fontSize: 20,
                         color: blackColor,
                       ),
                     ),
@@ -111,7 +122,7 @@ class _TextListContainerState extends State<TextListContainer> {
           const SizedBox(height: 10), // Added spacing
           Text(
             'Stored ${widget.label}', // Label for the list of stored texts
-            style: TextStyle(
+            style:const TextStyle(
               fontSize: 16,
               fontFamily: "LexendRegular",
               color: blackColor,
@@ -120,38 +131,51 @@ class _TextListContainerState extends State<TextListContainer> {
           Container(
             height: 200,
             width: 400,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),color: darkGrey20Color),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5), color: darkGrey20Color),
             child: ListView.builder(
               itemCount: textList.length,
               itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 10,left: 10,right: 10),
-                  child: Row(
-                    children: [
-                      Text(
-                        textList[index],
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontFamily: "LexendRegular",
-                          color: blackColor,
-                        ),
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              textList[index],
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: "LexendRegular",
+                                color: blackColor,
+                              ),
+                            ),
+                          ),
+                         const SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: !widget.isedit
+                                ? () {}
+                                : () {
+                                    setState(() {
+                                      textList.removeAt(index);
+                                      if (widget.onTextListChanged != null) {
+                                        widget.onTextListChanged!(textList);
+                                      }
+                                    });
+                                  },
+                            child: Image.asset(
+                              'Assets/Close_Cross_Icon.png',
+                              width: 20,
+                              height: 20,
+                              // Adjust the path and size as per your actual image
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            textList.removeAt(index);
-                          });
-                        },
-                        child: Image.asset(
-                          'Assets/Close_Cross_Icon.png',
-                          width: 20,
-                          height: 20,
-                          // Adjust the path and size as per your actual image
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 20,)
+                  ],
                 );
               },
             ),

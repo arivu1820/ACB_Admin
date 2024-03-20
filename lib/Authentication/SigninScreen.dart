@@ -1,43 +1,94 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:acb_admin/HomePage.dart';
+import 'package:acb_admin/Theme/Colors.dart';
 
-import 'package:flutter/widgets.dart';
+class EmailPasswordSigninBtn extends StatelessWidget {
+  const EmailPasswordSigninBtn({Key? key}) : super(key: key);
 
-// class SigninScreen extends StatelessWidget {
-//   final String uid;
-//   const SigninScreen({super.key,required this.uid});
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        try {
+          // Show loading indicator
+          showDialog(
+            context: context,
+            builder: (context) {
+              return Center(
+                child: CircularProgressIndicator(
+                  color: darkBlueColor,
+                ),
+              );
+            },
+          );
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return  Scaffold(
-//       backgroundColor: whiteColor,
-//       body: Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         crossAxisAlignment: CrossAxisAlignment.center,
-//         children: [
-//          const  SimplyExpand(),
-//           const Text(
-//             "AC Baradise",
-//             textAlign: TextAlign.center,
-//             style: TextStyle(
-//               fontSize: 48,
-//               fontFamily: "Iceberg",
-//               color: lightBlueColor,
-//             ),
-//           ),
-//           const SimplyExpand(),
-//           FittedBox(fit: BoxFit.contain, child: Padding(
-//             padding: EdgeInsets.symmetric(horizontal: 20),
-//             child: TCandPrivacy(),
-//           )),
-//          const SizedBox(
-//             height: 20,
-//           ),
-//           GoogleSigninBtn(uid: uid,),
-//           SizedBox(
-//             height: 30,
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+          // Authenticate user with email and password
+          UserCredential authResult = await FirebaseAuth.instance
+              .signInWithEmailAndPassword(
+            email: 'test@gmail.com', // Replace with user-entered email
+            password: 'testtest', // Replace with user-entered password
+          );
+          User? user = authResult.user;
+
+          // Hide loading indicator
+          Navigator.of(context).pop();
+
+          // Navigate to the next page on successful sign-in
+          if (user != null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MyHomePage(),
+              ),
+            );
+          }
+        } catch (e) {
+          // Hide loading indicator
+          Navigator.of(context).pop();
+
+          // Display error message
+          print("Error signing in with email and password: $e");
+
+          // Show error dialog
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("Error"),
+                content: Text("Failed to sign in. Please try again."),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 30),
+        decoration: BoxDecoration(
+          color: lightBlueColor,
+          borderRadius: BorderRadius.circular(5),
+        ),
+        height: 60,
+        width: double.infinity,
+        child: Center(
+          child: Text(
+            "Continue with Email/Password",
+            style: TextStyle(
+              fontSize: 16,
+              fontFamily: "LexendMedium",
+              color: blackColor,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

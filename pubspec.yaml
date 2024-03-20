@@ -41,6 +41,9 @@ dependencies:
   firebase_core: ^2.27.1
   cloud_firestore: ^4.15.9
   firebase_auth: ^4.17.9
+  firebase_storage: ^11.6.10
+  google_sign_in: ^6.2.1
+  
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +73,7 @@ flutter:
     - Assets/timer.png
     - Assets/greentick.png
     - Assets/Close_Cross_Icon.png
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

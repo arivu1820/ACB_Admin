@@ -3,15 +3,19 @@ import 'package:acb_admin/Theme/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class ProductsCategoryListContainer extends StatelessWidget {
+class ServiceCommonListContainer extends StatelessWidget {
   final String title;
   final String categoryId;
-  const ProductsCategoryListContainer({
-    super.key,
-    required this.categoryId,
-    required this.title,
-  });
+  final String categoryName;
+  final String productId;
 
+  const ServiceCommonListContainer({
+    Key? key,
+    required this.title,
+    required this.categoryId,
+    required this.productId,
+    required this.categoryName,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +40,13 @@ class ProductsCategoryListContainer extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
-              
+              const SizedBox(
+                width: 20,
+              ),
               Expanded(
                 child: Text(
                   title,
-                  style:const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'LexendRegular',
                     fontSize: 13,
                     color: blackColor,
@@ -51,7 +57,8 @@ class ProductsCategoryListContainer extends StatelessWidget {
                 width: 20,
               ),
               GestureDetector(
-                onTap: () => DatabaseHelper.removeProductCategory(context,categoryId),
+                onTap: () =>
+                    DatabaseHelper.removeService(context, productId, categoryId, categoryName),
                 child: Image.asset(
                   'Assets/Close_Cross_Icon.png',
                   width: 30,

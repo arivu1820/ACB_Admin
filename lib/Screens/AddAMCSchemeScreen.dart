@@ -68,7 +68,7 @@ class AddAMCSchemeScreen extends StatelessWidget {
                     limit: 20,
                     isnum: false,
                   ),
-                  UploadImageListContainer(label: 'Images'),
+                  // UploadImageListContainer(label: 'Images'),
                   TextContainer(
                     controller: TotalSparesMRPController,
                     label: "TotalSpares MRP",

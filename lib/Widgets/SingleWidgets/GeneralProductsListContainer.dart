@@ -1,19 +1,24 @@
+import 'package:acb_admin/Models/DataBaseHelper.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class GeneralProductsListContainer extends StatelessWidget {
   final String img;
   final String title;
-
+  final String productId;
   const GeneralProductsListContainer({
-    Key? key,
+    super.key,
+    required this.productId,
     required this.img,
     required this.title,
-  }) : super(key: key);
+  });
+
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox( // Use SizedBox instead of Expanded
+    return SizedBox(
+      // Use SizedBox instead of Expanded
       child: Container(
         decoration: BoxDecoration(
           color: whiteColor,
@@ -36,7 +41,6 @@ class GeneralProductsListContainer extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.network(
-                  
                   img,
                   width: 80,
                   height: 80,
@@ -48,7 +52,7 @@ class GeneralProductsListContainer extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                   style: TextStyle(
+                  style:const TextStyle(
                     fontFamily: 'LexendRegular',
                     fontSize: 13,
                     color: blackColor,
@@ -58,10 +62,13 @@ class GeneralProductsListContainer extends StatelessWidget {
               const SizedBox(
                 width: 20,
               ),
-              Image.asset(
-                'Assets/Close_Cross_Icon.png',
-                width: 30,
-                height: 30,
+              GestureDetector(
+                onTap: () => DatabaseHelper.removeGeneralProduct(context,productId),
+                child: Image.asset(
+                  'Assets/Close_Cross_Icon.png',
+                  width: 30,
+                  height: 30,
+                ),
               ),
             ],
           ),
