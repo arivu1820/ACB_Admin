@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:acb_admin/Models/FirebaseService.dart';
+import 'package:acb_admin/Screens/AddAMCSchemeScreen.dart';
 import 'package:acb_admin/Screens/CommonServicesScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
+import 'package:acb_admin/Widgets/CombinedWidgets/AMCListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/ServicesListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
@@ -351,22 +353,27 @@ class _AMCScreenState extends State<AMCScreen> {
                       });
                     },
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   widget.docId.isNotEmpty
-                      ? ServicesListItemsandAddItems(
-                          category: "Services",
-                          name: widget.docId.isNotEmpty
-                              ? widget.title
-                              : "Category",
+                      ? AMCListItemsandAddItems(
+                          category: "SCHEME",
+                          name:
+                              widget.docId.isNotEmpty ? widget.title : "Scheme",
                           categoryId: widget.docId,
-                          categoryName: 'GeneralService',
-                          screen: CommonServicesScreen(
-                              categoryId: widget.docId,
-                              servicename: 'GeneralService'),
-                          ServiceQuerySnapshot:
-                              FirebaseService().getGeneralServices(),
+                          categoryName: 'AMC',
+                          screen: AddAMCSchemeScreen(
+                              benefits: [],
+                              discount: 0,
+                              imgs: [],
+                              docId: '',
+                              mrp: 0,
+                              overviewcontent: '',
+                              title: '',
+                              totalspares: [],
+                              totalsparesmrp: 0),
+                          ServiceQuerySnapshot: FirebaseService().getAMC(),
                         )
                       : const SizedBox(),
                   const SizedBox(

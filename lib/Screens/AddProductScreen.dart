@@ -3,9 +3,7 @@ import 'dart:js_util';
 import 'dart:typed_data';
 
 import 'package:acb_admin/Theme/Colors.dart';
-import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
-import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextListContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextMapContainer.dart';
@@ -150,7 +148,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             return;
           }
 
-          if (fetchedimageslist.isEmpty && mapspecification.isEmpty) {
+          if (fetchedimageslist.isEmpty && selectedimageslist.isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Images should not be Empty'),

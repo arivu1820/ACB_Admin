@@ -1,28 +1,253 @@
+import 'dart:typed_data';
+
 import 'package:acb_admin/Theme/Colors.dart';
-import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
-import 'package:acb_admin/Widgets/SingleWidgets/BenefitsContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
-import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextListContainer.dart';
-import 'package:acb_admin/Widgets/SingleWidgets/TextMapContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/UploadImageListContainer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
-class AddAMCSchemeScreen extends StatelessWidget {
-  AddAMCSchemeScreen({super.key});
+class AddAMCSchemeScreen extends StatefulWidget {
+  final List<dynamic> benefits;
+  final List<dynamic> imgs;
+  final num mrp;
+  final num discount;
+  final String docId;
+  final String title;
+  final String overviewcontent;
+  final List<dynamic> totalspares;
+  final num totalsparesmrp;
+  AddAMCSchemeScreen(
+      {super.key,
+      required this.benefits,
+      required this.discount,
+      required this.imgs,
+      required this.docId,
+      required this.mrp,
+      required this.overviewcontent,
+      required this.title,
+      required this.totalspares,
+      required this.totalsparesmrp});
 
+  @override
+  State<AddAMCSchemeScreen> createState() => _AddAMCSchemeScreenState();
+}
+
+class _AddAMCSchemeScreenState extends State<AddAMCSchemeScreen> {
   final TextEditingController NameController = TextEditingController();
+
   final TextEditingController MRPController = TextEditingController();
+
   final TextEditingController DiscountController = TextEditingController();
+
   final TextEditingController BenefitsController = TextEditingController();
+
   final TextEditingController DescriptionController = TextEditingController();
+
   final TextEditingController TotalSparesBenefitsController =
       TextEditingController();
+
   final TextEditingController TotalSparesMRPController =
       TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+
+  List<dynamic> listedbenefits = [];
+  List<dynamic> listedtotalspares = [];
+  List<Uint8List> _selectedImages = [];
+  List<dynamic> fetchedimageslist = []; // List to hold selected images
+  List<dynamic> selectedimageslist = []; // List to hold selected images
+  List<dynamic> removedimageslist = [];
+
+  @override
+  void initState() {
+    super.initState();
+    NameController.text = widget.title;
+    DescriptionController.text = widget.overviewcontent;
+    MRPController.text = widget.mrp.toString();
+    DiscountController.text = widget.discount.toString();
+    TotalSparesMRPController.text = widget.totalsparesmrp.toString();
+    listedbenefits = widget.benefits;
+    listedtotalspares = widget.totalspares;
+    fetchedimageslist = widget.imgs;
+  }
+
+  bool isEditing = false;
+
+  void _handleEditPressed() {
+    setState(() {
+      isEditing = true;
+    });
+  }
+
+  Future<void> _handleSubmitPressed() async {
+    if (isEditing) {
+      setState(() {
+        isEditing = false;
+      });
+
+      if (_formKey.currentState!.validate()) {
+        try {
+          String name = NameController.text;
+          String description = DescriptionController.text;
+          int mrp = int.parse(MRPController.text);
+          int discount = int.parse(DiscountController.text);
+          int totalsparesprice = int.parse(TotalSparesMRPController.text);
+
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          );
+
+          if (removedimageslist.isNotEmpty) {
+            // Remove items from fetchedimageslist based on the values in removedimageslist
+            fetchedimageslist
+                .removeWhere((item) => removedimageslist.contains(item));
+          }
+
+          // Upload images and get download URLs
+          for (Uint8List imageBytes in _selectedImages) {
+            String? imageUrl = await _uploadImage(imageBytes);
+            if (imageUrl != null) {
+              selectedimageslist.add(imageUrl);
+            }
+          }
+
+          if (listedbenefits.isEmpty || listedbenefits.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Scheme Benefits and Total Spares Benefits Should be Empty'),
+              ),
+            );
+            Navigator.of(context).pop();
+
+            return;
+          }
+
+          if (listedbenefits.length != fetchedimageslist.length+selectedimageslist.length) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Scheme Benefits and Images length should be same!'),
+              ),
+            );
+            Navigator.of(context).pop();
+
+            return;
+          }
+
+          if (fetchedimageslist.isEmpty && selectedimageslist.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Images should not be Empty'),
+              ),
+            );
+            Navigator.of(context).pop();
+
+            return;
+          }
+
+          Map<String, dynamic> contentData = {
+            'Title': name,
+            'Discount': discount,
+            'MRP': mrp,
+            "TotalSparesMRP": totalsparesprice,
+            'TotalSpares': listedtotalspares,
+            "Benefits": listedbenefits,
+            'OverviewContent': description,
+            'Images': [
+              ...fetchedimageslist,
+              ...selectedimageslist,
+            ], // Store image URLs in the database
+          };
+
+          if (widget.docId.isNotEmpty) {
+            await FirebaseFirestore.instance
+                .collection('Services')
+                .doc('hWHRjpawA5D6OTbrjn3h')
+                .collection('Categories')
+                .doc('5AMC')
+                .collection('AMC')
+                .doc(widget.docId)
+                .set({
+              'Content': contentData,
+              // Store image URLs in the database
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Changes added successfully.'),
+              ),
+            );
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          } else if (widget.docId.isEmpty) {
+            await FirebaseFirestore.instance
+                .collection('Services')
+                .doc('hWHRjpawA5D6OTbrjn3h')
+                .collection('Categories')
+                .doc('5AMC')
+                .collection('AMC')
+                .add({
+              'Content': contentData,
+// Store image URLs in the database
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('New Scheme added successfully.'),
+              ),
+            );
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to add'),
+              ),
+            );
+            Navigator.of(context).pop();
+          }
+        } catch (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to add, Try after sometime!'),
+            ),
+          );
+          print('Error parsing data: $error');
+        }
+      }
+    }
+  }
+
+  Future<String?> _uploadImage(Uint8List imageBytes) async {
+    try {
+      final firebase_storage.Reference ref = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('Images/Services/AMC')
+          .child('${NameController.text}.jpg');
+      await ref.putData(imageBytes);
+      final imageUrl = await ref.getDownloadURL();
+
+      return imageUrl;
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error uploading image: $error'),
+        ),
+      );
+      print("$error");
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +258,10 @@ class AddAMCSchemeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            EditandSumbitBtn(),
+            EditandSumbitBtn(
+              onEditPressed: _handleEditPressed,
+              onSubmitPressed: _handleSubmitPressed,
+            ),
             Form(
               key: _formKey,
               child: Column(
@@ -43,43 +271,77 @@ class AddAMCSchemeScreen extends StatelessWidget {
                     label: "Scheme Name",
                     limit: 500,
                     isnum: false,
+                    isedit: isEditing,
                   ),
                   TextContainer(
                     controller: DescriptionController,
                     label: "Description",
-                    limit: 20,
+                    limit: 100,
                     isnum: false,
+                    isedit: isEditing,
                   ),
                   TextContainer(
                     controller: MRPController,
                     label: "MRP",
                     limit: 10,
                     isnum: true,
+                    isedit: isEditing,
                   ),
                   TextContainer(
                     controller: DiscountController,
                     label: "Discount",
                     limit: 3,
                     isnum: true,
+                    isedit: isEditing,
                   ),
                   TextListContainer(
                     controller: BenefitsController,
                     label: "Benefits",
-                    limit: 20,
+                    limit: 200,
                     isnum: false,
+                    isedit: isEditing,
+                    fetchedlist: listedbenefits,
+                    onTextListChanged: (List<String> list) {
+                      setState(() {
+                        listedbenefits = list;
+                      });
+                    },
                   ),
-                  // UploadImageListContainer(label: 'Images'),
+                  UploadImageListContainer(
+                    imgs: widget.imgs,
+                    name: 'Upload Images',
+                    isedit: isEditing,
+                    selectedImages: _selectedImages,
+                    onImagesSelected: (List<Uint8List> images) {
+                      setState(() {
+                        _selectedImages = images;
+                      });
+                    },
+                    onfetchedImagesremoved: (List<dynamic> removedimages) {
+                      setState(() {
+                        removedimageslist = removedimages;
+                      });
+                    },
+                  ),
                   TextContainer(
                     controller: TotalSparesMRPController,
                     label: "TotalSpares MRP",
                     limit: 10,
                     isnum: true,
+                    isedit: isEditing,
                   ),
                   TextListContainer(
                     controller: TotalSparesBenefitsController,
                     label: "TotalSpares Benefits",
-                    limit: 20,
+                    limit: 100,
                     isnum: false,
+                    isedit: isEditing,
+                    fetchedlist: listedtotalspares,
+                    onTextListChanged: (List<String> list) {
+                      setState(() {
+                        listedtotalspares = list;
+                      });
+                    },
                   ),
                   const SizedBox(
                     height: 30,
@@ -93,161 +355,3 @@ class AddAMCSchemeScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-
-// import 'package:acbaradise_2024/Models/DataBaseHelper.dart';
-// import 'package:acbaradise_2024/Theme/Colors.dart';
-// import 'package:acbaradise_2024/Widgets/SingleWidgets/AppbarWithCart.dart';
-// import 'package:acbaradise_2024/Widgets/SingleWidgets/CommonBtn.dart';
-// import 'package:acbaradise_2024/Widgets/SingleWidgets/TextContainer.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-// class AddAddressDetailsScreen extends StatelessWidget {
-//   final String uid;
-
-//   final TextEditingController field1Controller = TextEditingController();
-//   final TextEditingController field2Controller = TextEditingController();
-//   final TextEditingController field3Controller = TextEditingController();
-//   final TextEditingController field4Controller = TextEditingController();
-
-//   final _formKey = GlobalKey<FormState>();
-
-//   AddAddressDetailsScreen({required this.uid});
-
-
-
-//   static const LatLng sourcelocaion = LatLng(37.00, 52.3);
-
-//   @override
-//   Widget build(BuildContext context) {
-
-//       void _submitForm(
-//     TextEditingController field1Controller,
-//     TextEditingController field2Controller,
-//     TextEditingController field3Controller,
-//     TextEditingController field4Controller,
-//   ) async {
-//     if (_formKey.currentState!.validate()) {
-//       // Your logic here
-//       Map<String, dynamic> ServiceDetails = {
-//         'HouseNoFloor': field1Controller.text,
-//         'BuildingStreet' : field2Controller.text,
-//         'LandmarkAreaName' : field3Controller.text,
-//         'Contact' : field4Controller.text,
-//         'isSelected' : true,
-//       };
-
-//       try {
-        
-//         await FirebaseFirestore.instance
-//           .collection('Users')
-//           .doc(uid)
-//           .collection('AddedAddress')
-//           .get()
-//           .then((querySnapshot) {
-//         for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-//           doc.reference.update({'isSelected': false});
-//         }
-//       });
-      
-//         await DatabaseHelper.addaddress(
-//           uid: uid,
-//           serviceDetails: ServiceDetails,
-//         );
-
-//         Navigator.of(context).pop();
-
-//         ScaffoldMessenger.of(context).showSnackBar(
-//                         SnackBar(
-//                           content: Text('Address add successfully'),
-//                         ),
-//                       );
-
-//         // You can access the text from the controllers like this:
-
-//         // Do something with the values if needed.
-//       } catch (error) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//                         SnackBar(
-//                           content: Text('Address not added'),
-//                         ),
-//                       );
-//         // Handle error
-//       }
-//     } 
-//   }
-
-//     return Scaffold(
-//       backgroundColor: whiteColor,
-//       appBar: AppbarWithCart(
-//         PageName: "Add Address Detail",
-//         iscart: false,
-//         uid: uid,
-//       ),
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             Container(
-//               height: 400,
-//               width: double.infinity,
-//               color: lightBlue25Color,
-//               child: GoogleMap(
-//                   initialCameraPosition:
-//                       CameraPosition(target: sourcelocaion, zoom: 14.5),
-//                   markers: {
-//                     Marker(
-//                         markerId: MarkerId("source"), position: sourcelocaion),
-//                   }),
-//             ),
-//             Form(
-//               key: _formKey,
-//               child: Column(
-//                 children: [
-//                   TextContainer(
-//                     controller: field1Controller,
-//                     label: "House No. & Floor",
-//                     limit: 15,
-//                     isnum: false,
-//                   ),
-//                   TextContainer(
-//                     controller: field2Controller,
-//                     label: "Building & Street",
-//                     limit: 50,
-//                     isnum: false,
-//                     minCharacters: 5,
-//                   ),
-//                   TextContainer(
-//                     controller: field3Controller,
-//                     label: "Landmark & Area Name (Optional)",
-//                     isOptional: true,
-//                     limit: 50,
-//                     isnum: false,
-//                     minCharacters: 0,
-//                   ),
-//                   TextContainer(
-//                     controller: field4Controller,
-//                     label: "Contact No.",
-//                     limit: 10,
-//                     isnum: true,
-//                     minCharacters: 10,
-//                   ),
-//                   CommonBtn(
-//   BtnName: "Save Address",
-//   function: () => _submitForm(field1Controller, field2Controller, field3Controller, field4Controller),
-//   isSelected: true,
-// ),
-
-
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
