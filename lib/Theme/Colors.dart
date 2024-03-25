@@ -9,6 +9,9 @@ const darkGreyColor = Color.fromRGBO(217,217, 217, 1);
 const brownColor = Color.fromRGBO(159, 37, 36, 1); 
 const leghtGreen = Color.fromRGBO(69, 201, 165, 1); 
 
+const brown50Color = Color.fromRGBO(159, 37, 36, 0.5); 
+
+
 const lightBlue10Color = Color.fromRGBO(163, 216, 255, 0.1);
 const lightBlue20Color = Color.fromRGBO(163, 216, 255, 0.2);
 const lightBlue25Color = Color.fromRGBO(163, 216, 255, 0.25);

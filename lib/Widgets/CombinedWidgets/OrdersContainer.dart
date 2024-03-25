@@ -92,7 +92,7 @@ class OrdersContainer extends StatelessWidget {
               const Spacer(),
               FittedBox(
                 child: Text(
-                  orderid,
+                  "#"+orderid,
                   style: const TextStyle(
                     fontFamily: 'LexendRegular',
                     fontSize: 14,
@@ -102,7 +102,7 @@ class OrdersContainer extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                DateFormat('dd MMM yyyy').format(date),
+                DateFormat('dd MMM yyyy HH:mm a').format(date),
                 style: const TextStyle(
                   fontFamily: 'LexendRegular',
                   fontSize: 20,

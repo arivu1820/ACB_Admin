@@ -1,5 +1,6 @@
 import 'package:acb_admin/Models/FirebaseService.dart';
 import 'package:acb_admin/Screens/CommonServicesScreen.dart';
+import 'package:acb_admin/Screens/addwetwashservice.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/ServiceCommonListContiner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -97,31 +98,50 @@ class ServicesListItemsandAddItems extends StatelessWidget {
                           itemCount: services.length,
                           itemBuilder: (context, index) {
                             final service = services[index];
+                            final wash360MRP =
+                                (service.data()! as Map<String, dynamic>)
+                                        .containsKey('Wash360MRP')
+                                    ? service['Wash360MRP']
+                                    : 0;
+                            final is360 =
+                                (service.data()! as Map<String, dynamic>)
+                                        .containsKey('is360')
+                                    ? service['is360']
+                                    : false;
+
                             return GestureDetector(
                               onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => CommonServicesScreen(
-                                          img: service['Image'],
-                                          mrp: service['MRP'],
-                                          discount: service['Discount'],
-                                          title: service['Title'],
-                                          benefits: service['Benefits'],
-                                          wash360price:
-                                              service['Wash360MRP'] ?? 0,
-                                          iswetwash: service['is360'] ?? false,
-                                          serviceId: service.id,
-                                          servicename: categoryName,
-                                                                          categoryId: categoryId,
-
-                                        )),
+                                    builder: (context) =>
+                                        categoryName == 'WetWash'
+                                            ? AddWetWashService(
+                                                categoryId: categoryId,
+                                                servicename: categoryName,
+                                                iswetwash: false,
+                                                img: service['Image'],
+                                                mrp: service['MRP'],
+                                                discount: service['Discount'],
+                                                title: service['Title'],
+                                                benefits: service['Benefits'],
+                                                serviceId: service.id,
+                                              )
+                                            : CommonServicesScreen(
+                                                img: service['Image'],
+                                                mrp: service['MRP'],
+                                                discount: service['Discount'],
+                                                title: service['Title'],
+                                                benefits: service['Benefits'],
+                                                serviceId: service.id,
+                                                servicename: categoryName,
+                                                categoryId: categoryId,
+                                              )),
                               ),
                               child: ServiceCommonListContainer(
                                 title: service['Title'],
                                 productId: service.id,
                                 categoryId: categoryId,
                                 categoryName: categoryName,
-
                               ),
                             );
                           },

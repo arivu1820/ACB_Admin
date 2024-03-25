@@ -46,7 +46,7 @@ class _AMCServiceCompletedState extends State<AMCServiceCompleted> {
           const SizedBox(
             width: 10,
           ),
-          CustomDoneBtn(switchValue: switchValue),
+          // CustomDoneBtn(switchValue: switchValue),
           const SizedBox(
             width: 10,
           ),

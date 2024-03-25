@@ -17,6 +17,174 @@ class DatabaseHelper {
     }
   }
 
+  static Future<void> remove(String orderid,BuildContext context) async {
+                                                                Navigator.of(context).pop();
+
+  // Get the CurrentOrders document
+  DocumentSnapshot orderSnapshot = await FirebaseFirestore.instance.collection('CurrentOrders').doc(orderid).get();
+  Map<String, dynamic> orderData = orderSnapshot.data() as Map<String, dynamic>;
+
+  // Move the entire document to CompletedOrders collection
+  await FirebaseFirestore.instance.collection('CompletedOrders').doc(orderid).set(orderData)
+    .then((_) async {
+      // If the set operation is successful, delete the document from CurrentOrders collection
+      await FirebaseFirestore.instance.collection('CurrentOrders').doc(orderid).delete();
+
+      // Transfer subcollections
+      QuerySnapshot subcollectionSnapshot = await FirebaseFirestore.instance.collection('CurrentOrders').doc(orderid).collection('OnDutyPartner').get();
+      for (QueryDocumentSnapshot document in subcollectionSnapshot.docs) {
+        Map<String, dynamic> subcollectionData = document.data() as Map<String, dynamic>;
+        await FirebaseFirestore.instance.collection('CompletedOrders').doc(orderid).collection('OnDutyPartner').doc(document.id).set(subcollectionData);
+      }
+    }
+
+    
+    )
+    .catchError((error) {
+      // Handle error
+      print('Error moving document: $error');
+    });
+
+}
+
+
+    static Future<void> cancel(String orderid, String uid,BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cancel Order'),
+          content: const Text(
+              'Are you sure you want to cancel this order? This action will reflect to user.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirebaseFirestore.instance
+                    .collection('CurrentOrders')
+                    .doc(orderid)
+                    .update({
+                  'orderPayment': 'cancel',
+                  'onProcess': false,
+                  'Completed': true
+                }).then((value) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Canceled successfully'),
+                    ),
+                  );
+                }).catchError((error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to Cancel Order, Check your network connection'),
+                    ),
+                  );
+                });
+                await FirebaseFirestore.instance
+                    .collection('Users')
+                    .doc(uid)
+                    .collection('Orders')
+                    .doc(orderid)
+                    .update({'orderPayment': 'cancel'}).then((value) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Successfully Updated to user'),
+                    ),
+                  );
+                }).catchError((error) {
+                  print('Failed to update user, check your network connection: $error');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to update user, check your network connection'),
+                    ),
+                  );
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child:const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+      static Future<void> orderCompleted(String orderid, String method,BuildContext context,String uid) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Order Completed'),
+          content: const Text(
+              'Did user paid and the service or product delivered to user?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirebaseFirestore.instance
+              .collection('CurrentOrders')
+              .doc(orderid)
+              .update(  {  'orderPayment':method=='online'?'online':'confirm','onProcess': false,'Completed': true})
+              .then((value) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Order Completed successfully'),
+                    ),
+                  );
+                }).catchError((error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to Completed Order, Check your network connection'),
+                    ),
+                  );
+                });
+
+                 // Update orderPayment field to 'confirm' in user's order details
+         await FirebaseFirestore.instance
+              .collection('Users')
+              .doc(uid)
+              .collection('Orders')
+              .doc(orderid)
+              .update({'orderPayment': 'confirm'})
+              .then((value) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Successfully updated to user'),
+                    ),
+                  );
+                }).catchError((error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to updated user, Check your network connection'),
+                    ),
+                  );
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child:const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
+
+
+
   static removeGeneralProduct(BuildContext context, String productId) {
     showDialog(
       context: context,

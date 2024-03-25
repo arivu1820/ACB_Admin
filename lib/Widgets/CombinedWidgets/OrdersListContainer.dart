@@ -1,70 +1,78 @@
 import 'package:acb_admin/Theme/Colors.dart';
+import 'package:acb_admin/Widgets/CombinedWidgets/AMC.dart';
+import 'package:acb_admin/Widgets/CombinedWidgets/GeneralProducts.dart';
+import 'package:acb_admin/Widgets/CombinedWidgets/Products.dart';
+import 'package:acb_admin/Widgets/CombinedWidgets/Services.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class OrdersListContainer extends StatelessWidget {
-  const OrdersListContainer({Key? key});
+class OrderListScreen extends StatelessWidget {
+  final String uid;
+  final String address;
+  final String name;
+  final String contact;
+  final num totalamount;
+  final List orderdetails;
+
+  const OrderListScreen({
+    super.key,
+    required this.uid,
+    required this.address,
+    required this.contact,
+    required this.name,
+    required this.totalamount,
+    required this.orderdetails,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 20),
-          child: Text(
-            'category',
-            style: TextStyle(
-              fontFamily: 'LexendMedium',
-              fontSize: 32,
-              color: blackColor,
-            ),
-          ),
-        ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: Row(
+        Column(
+          children: [
+            if (orderdetails[3]['GeneralProducts'].isNotEmpty)
+              GeneralProducts(
+                isQtyReq: true,
+                uid: uid,
+                orderdetails: orderdetails[3],
+              ),
+            if (orderdetails[2]['Products'].isNotEmpty)
+              Products(
+                isQtyReq: true,
+                uid: uid,
+                orderdetails: orderdetails[2],
+              ),
+            if (orderdetails[1]['Services'].isNotEmpty)
+              Services(
+                uid: uid,
+                orderdetails: orderdetails[1],
+              ),
+            if (orderdetails[0]['AMC'].isNotEmpty)
+              AMC(
+                isQtyReq: true,
+                uid: uid,
+                orderdetails: orderdetails[0],
+              ),
+            Column(
               children: [
-                Expanded(
-                  child: Text(
-                    'LG 1.5 Ton 5 Star DUAL Inverter Split AC (Copper, AI Convertible 6-in-1 Cooling, 4 Way, HD Filter with Anti-Virus Protection, 2024 Model, TS-Q19YNZE, White),,LG 1.5 Ton 5 Star DUAL Inverter Split AC (Copper, AI Convertible 6-in-1 Cooling, 4 Way, HD Filter with Anti-Virus Protection, 2024 Model, TS-Q19YNZE, White)',
-                    style: TextStyle(
+                const Text(
+                  'Total amount',
+                  style: TextStyle(
                       fontFamily: 'LexendRegular',
-                      fontSize: 16,
-                      color: blackColor,
-                    ),
-                  ),
+                      fontSize: 22,
+                      color: blackColor),
                 ),
-                const SizedBox(
-                  width: 80,
-                ),
-                Column(
-                  children: [
-                    Text(
-                      '5,999',
-                      style: TextStyle(
-                        fontFamily: 'LexendRegular',
-                        fontSize: 17,
-                        color: blackColor,
-                      ),
-                    ),
-                    Text(
-                      'Qty: 1',
-                      style: TextStyle(
-                        fontFamily: 'LexendRegular',
-                        fontSize: 12,
-                        color: blackColor,
-                      ),
-                    ),
-                  ],
+                Text(
+                  '₹ ${NumberFormat('#,##,##0.00').format(totalamount)}',
+                  style: const TextStyle(
+                      fontFamily: 'LexendBold',
+                      fontSize: 22,
+                      color: blackColor),
                 )
               ],
-            ),
-          ),
-          itemCount: 3,
-        )
+            )
+          ],
+        ),
       ],
     );
   }

@@ -317,7 +317,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   TextListContainer(
                     controller: OverviewController,
                     label: "Overview",
-                    limit: 20,
+                    limit: 400,
                     isnum: false,
                     isedit: isEditing,
                     fetchedlist: listedoverview,
@@ -328,7 +328,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     },
                   ),
                   TextMapContainer(
-                    limit: 20,
+                    limit: 25,
                     isnum: false,
                     firstcontroller: SpecificationkeyController,
                     secondcontroller: SpecificationvalueController,

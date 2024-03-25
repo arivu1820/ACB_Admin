@@ -4,6 +4,35 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  Future<void> updateOrderOnProcess(String orderId, bool newValue) async {
+    try {
+      // Get reference to the document
+      DocumentReference orderRef =
+          _firestore.collection('CurrentOrders').doc(orderId);
+
+      // Update the 'onProcess' field with the new value
+      await orderRef.update({'onProcess': newValue});
+    } catch (error) {
+      print('Error updating order onProcess status: $error');
+      throw error; // Throw error to handle it in the UI if needed
+    }
+  }
+
+  Stream<QuerySnapshot> getCurrentOrders() {
+    return _firestore.collection('CurrentOrders').snapshots();
+  }
+
+  Stream<QuerySnapshot> getCompletedOrders() {
+    return _firestore.collection('CompletedOrders').snapshots();
+  }
+
+  Stream<DocumentSnapshot> getOrderdetails(
+      String orderid, bool isordercompleted) {
+    return isordercompleted
+        ? _firestore.collection('CompletedOrders').doc(orderid).snapshots()
+        : _firestore.collection('CurrentOrders').doc(orderid).snapshots();
+  }
+
   Stream<QuerySnapshot> getGeneralProducts() {
     return _firestore.collection('GeneralProducts').snapshots();
   }

@@ -120,7 +120,7 @@ class _AddAMCSchemeScreenState extends State<AddAMCSchemeScreen> {
             }
           }
 
-          if (listedbenefits.isEmpty || listedbenefits.isEmpty) {
+          if (listedbenefits.isEmpty || listedtotalspares.isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(
@@ -132,17 +132,17 @@ class _AddAMCSchemeScreenState extends State<AddAMCSchemeScreen> {
             return;
           }
 
-          if (listedbenefits.length != fetchedimageslist.length+selectedimageslist.length) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                    'Scheme Benefits and Images length should be same!'),
-              ),
-            );
-            Navigator.of(context).pop();
+          // if (listedbenefits.length != fetchedimageslist.length+selectedimageslist.length) {
+          //   ScaffoldMessenger.of(context).showSnackBar(
+          //     const SnackBar(
+          //       content: Text(
+          //           'Scheme Benefits and Images length should be same!'),
+          //     ),
+          //   );
+          //   Navigator.of(context).pop();
 
-            return;
-          }
+          //   return;
+          // }
 
           if (fetchedimageslist.isEmpty && selectedimageslist.isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -233,7 +233,7 @@ class _AddAMCSchemeScreenState extends State<AddAMCSchemeScreen> {
           .FirebaseStorage.instance
           .ref()
           .child('Images/Services/AMC')
-          .child('${NameController.text}.jpg');
+          .child('${DateTime.now().millisecondsSinceEpoch}.jpg');
       await ref.putData(imageBytes);
       final imageUrl = await ref.getDownloadURL();
 

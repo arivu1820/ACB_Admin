@@ -14,31 +14,35 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 
-class CommonServicesScreen extends StatefulWidget {
+class AddWetWashService extends StatefulWidget {
   final List<dynamic> benefits;
   final String img;
   final num mrp;
   final num discount;
   final String title;
+  final bool iswetwash;
+  final num wash360price;
   final String serviceId;
   final String servicename;
   final String categoryId;
-  CommonServicesScreen(
+  AddWetWashService(
       {super.key,
+      this.iswetwash = false,
       this.benefits = const [],
       this.discount = 0,
       this.img = '',
       required this.categoryId,
       this.serviceId = '',
       required this.servicename,
+      this.wash360price = 0,
       this.mrp = 0,
       this.title = ''});
 
   @override
-  State<CommonServicesScreen> createState() => _CommonServicesScreenState();
+  State<AddWetWashService> createState() => _CommonServicesScreenState();
 }
 
-class _CommonServicesScreenState extends State<CommonServicesScreen> {
+class _CommonServicesScreenState extends State<AddWetWashService> {
   final TextEditingController NameController = TextEditingController();
 
   final TextEditingController MRPController = TextEditingController();
@@ -46,6 +50,10 @@ class _CommonServicesScreenState extends State<CommonServicesScreen> {
   final TextEditingController DiscountController = TextEditingController();
 
   final TextEditingController BenefitsController = TextEditingController();
+
+  final TextEditingController wash360priceController = TextEditingController();
+
+  final TextEditingController is360Controller = TextEditingController();
   List<dynamic> listedbenefits = [];
 
   @override
@@ -53,8 +61,10 @@ class _CommonServicesScreenState extends State<CommonServicesScreen> {
     super.initState();
     NameController.text = widget.title;
     listedbenefits = widget.benefits;
+    wash360priceController.text = widget.wash360price.toString();
     MRPController.text = widget.mrp.toString();
     DiscountController.text = widget.discount.toString();
+    is360Controller.text = widget.iswetwash.toString();
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -78,6 +88,8 @@ class _CommonServicesScreenState extends State<CommonServicesScreen> {
           String name = NameController.text;
           int mrp = int.parse(MRPController.text);
           int discount = int.parse(DiscountController.text);
+          int wash360price = int.parse(wash360priceController.text);
+          bool is360 = is360Controller.text.trim().toLowerCase() == 'true';
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -102,6 +114,7 @@ class _CommonServicesScreenState extends State<CommonServicesScreen> {
           }
 
           if (widget.serviceId.isNotEmpty) {
+            
               await FirebaseFirestore.instance
                   .collection('Services')
                   .doc('hWHRjpawA5D6OTbrjn3h')
@@ -113,6 +126,8 @@ class _CommonServicesScreenState extends State<CommonServicesScreen> {
                 'Title': name,
                 'MRP': mrp,
                 'Discount': discount,
+                'Wash360MRP': 0,
+                'is360': false,
                 'Benefits': listedbenefits,
                 'Image': imageUrl ?? widget.img,
               });
@@ -126,6 +141,8 @@ class _CommonServicesScreenState extends State<CommonServicesScreen> {
             Navigator.of(context).pop();
             Navigator.of(context).pop();
           } else if (imageUrl != null) {
+
+            
               await FirebaseFirestore.instance
                   .collection('Services')
                   .doc('hWHRjpawA5D6OTbrjn3h')
@@ -136,10 +153,12 @@ class _CommonServicesScreenState extends State<CommonServicesScreen> {
                 'Title': name,
                 'MRP': mrp,
                 'Discount': discount,
+                'Wash360MRP': 0,
+                'is360': false,
                 'Benefits': listedbenefits,
                 'Image': imageUrl,
               });
-          
+            
 
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -241,7 +260,25 @@ class _CommonServicesScreenState extends State<CommonServicesScreen> {
                     isnum: true,
                     isedit: isEditing,
                   ),
-                  
+                  if (widget.iswetwash)
+                    Column(
+                      children: [
+                        TextContainer(
+                          controller: wash360priceController,
+                          label: "360 degree Washing Price",
+                          limit: 10,
+                          isnum: true,
+                          isedit: isEditing,
+                        ),
+                        TextContainer(
+                          controller: is360Controller,
+                          label: "is360",
+                          limit: 5,
+                          isnum: false,
+                          isedit: isEditing,
+                        ),
+                      ],
+                    ),
                   TextListContainer(
                     controller: BenefitsController,
                     label: "Benefits",

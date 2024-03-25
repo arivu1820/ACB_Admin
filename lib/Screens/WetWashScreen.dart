@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:acb_admin/Models/FirebaseService.dart';
 import 'package:acb_admin/Screens/CommonServicesScreen.dart';
+import 'package:acb_admin/Screens/addwetwashservice.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/ServicesListItemsandAddItems.dart';
@@ -201,7 +202,7 @@ class _WetWashScreenState extends State<WetWashScreen> {
                               : "Category",
                           categoryId: widget.docId,
                           categoryName: 'WetWash',
-                          screen: CommonServicesScreen(categoryId: widget.docId, servicename: 'WetWash',iswetwash: true,),
+                          screen: AddWetWashService(categoryId: widget.docId, servicename: 'WetWash',iswetwash: false,),
                           ServiceQuerySnapshot: FirebaseService().getWetWash(),
                         
                         )
