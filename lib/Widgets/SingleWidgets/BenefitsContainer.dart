@@ -2,7 +2,8 @@ import 'package:acb_admin/Theme/Colors.dart';
 import 'package:flutter/material.dart';
 
 class BenefitsContainer extends StatelessWidget {
-  const BenefitsContainer({Key? key});
+  final List<dynamic> schemebenefits;
+  const BenefitsContainer({Key? key,required this.schemebenefits});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class BenefitsContainer extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
+                  const  Text(
                       '• ',
                       style: TextStyle(
                         color: darkBlueColor,
@@ -31,8 +32,8 @@ class BenefitsContainer extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'jasd;ljasljfsdljasl;d',
-                      style: TextStyle(
+                      schemebenefits[index],
+                      style:const TextStyle(
                         color: blackColor,
                         fontFamily: 'LexendLight',
                         fontSize: 20,
@@ -45,7 +46,7 @@ class BenefitsContainer extends StatelessWidget {
                 ),
               ],
             ),
-            itemCount: 5,
+            itemCount: schemebenefits.length,
           ),
         ),
       ),

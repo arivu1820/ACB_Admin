@@ -17,38 +17,136 @@ class DatabaseHelper {
     }
   }
 
-  static Future<void> remove(String orderid,BuildContext context) async {
-                                                                Navigator.of(context).pop();
+  static Future<void> remove(
+      BuildContext context, String orderid, isamc) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Move to Backup'),
+          content: Text(
+              'Are you sure you want to remove this order and move it to backup?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
 
-  // Get the CurrentOrders document
-  DocumentSnapshot orderSnapshot = await FirebaseFirestore.instance.collection('CurrentOrders').doc(orderid).get();
-  Map<String, dynamic> orderData = orderSnapshot.data() as Map<String, dynamic>;
+                await RemoveOrderSnackBar(context, orderid, isamc);
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  // Move the entire document to CompletedOrders collection
-  await FirebaseFirestore.instance.collection('CompletedOrders').doc(orderid).set(orderData)
-    .then((_) async {
-      // If the set operation is successful, delete the document from CurrentOrders collection
-      await FirebaseFirestore.instance.collection('CurrentOrders').doc(orderid).delete();
+  static Future<void> RemoveOrderSnackBar(
+      BuildContext context, String orderid, bool isamc) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Removing order and moving to backup...'),
+        duration: Duration(seconds: 2), // Adjust as needed
+      ),
+    );
+
+    try {
+      // Get the CurrentOrders document
+      if(isamc){
+
+        DocumentSnapshot orderSnapshot =  await FirebaseFirestore.instance
+              .collection('CurrentAMCSubscription')
+              .doc(orderid)
+              .get();
+      Map<String, dynamic> orderData =
+          orderSnapshot.data() as Map<String, dynamic>;
+
+      // Move the entire document to CompletedOrders collection
+      await FirebaseFirestore.instance
+          .collection('CompletedAMCSubscription')
+          .doc(orderid)
+          .set(orderData);
+
+      // Delete the document from CurrentOrders collection
+      await FirebaseFirestore.instance
+          .collection('CurrentAMCSubscription')
+          .doc(orderid)
+          .delete();
 
       // Transfer subcollections
-      QuerySnapshot subcollectionSnapshot = await FirebaseFirestore.instance.collection('CurrentOrders').doc(orderid).collection('OnDutyPartner').get();
+      QuerySnapshot subcollectionSnapshot = await FirebaseFirestore.instance
+          .collection('CurrentAMCSubscription')
+          .doc(orderid)
+          .collection('OnDutyPartner')
+          .get();
       for (QueryDocumentSnapshot document in subcollectionSnapshot.docs) {
-        Map<String, dynamic> subcollectionData = document.data() as Map<String, dynamic>;
-        await FirebaseFirestore.instance.collection('CompletedOrders').doc(orderid).collection('OnDutyPartner').doc(document.id).set(subcollectionData);
+        Map<String, dynamic> subcollectionData =
+            document.data() as Map<String, dynamic>;
+        await FirebaseFirestore.instance
+            .collection('CompletedAMCSubscription')
+            .doc(orderid)
+            .collection('OnDutyPartner')
+            .doc(document.id)
+            .set(subcollectionData);
       }
-    }
 
-    
-    )
-    .catchError((error) {
-      // Handle error
-      print('Error moving document: $error');
-    });
+      }
+      else{
+        DocumentSnapshot orderSnapshot =  await FirebaseFirestore.instance
+              .collection('CurrentOrders')
+              .doc(orderid)
+              .get();
+      Map<String, dynamic> orderData =
+          orderSnapshot.data() as Map<String, dynamic>;
 
-}
+      // Move the entire document to CompletedOrders collection
+      await FirebaseFirestore.instance
+          .collection('CompletedOrders')
+          .doc(orderid)
+          .set(orderData);
 
+      // Delete the document from CurrentOrders collection
+      await FirebaseFirestore.instance
+          .collection('CurrentOrders')
+          .doc(orderid)
+          .delete();
 
-    static Future<void> cancel(String orderid, String uid,BuildContext context) async {
+      // Transfer subcollections
+      QuerySnapshot subcollectionSnapshot = await FirebaseFirestore.instance
+          .collection('CurrentOrders')
+          .doc(orderid)
+          .collection('OnDutyPartner')
+          .get();
+      for (QueryDocumentSnapshot document in subcollectionSnapshot.docs) {
+        Map<String, dynamic> subcollectionData =
+            document.data() as Map<String, dynamic>;
+        await FirebaseFirestore.instance
+            .collection('CompletedOrders')
+            .doc(orderid)
+            .collection('OnDutyPartner')
+            .doc(document.id)
+            .set(subcollectionData);
+      }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order successfully removed and moved to backup'),
+          duration: Duration(seconds: 2), // Adjust as needed
+        ),
+      );
+    } catch (error) {}
+  }
+
+  static Future<void> cancel(
+      String orderid, String uid, BuildContext context) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -81,7 +179,8 @@ class DatabaseHelper {
                 }).catchError((error) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Failed to Cancel Order, Check your network connection'),
+                      content: Text(
+                          'Failed to Cancel Order, Check your network connection'),
                     ),
                   );
                 });
@@ -97,16 +196,18 @@ class DatabaseHelper {
                     ),
                   );
                 }).catchError((error) {
-                  print('Failed to update user, check your network connection: $error');
+                  print(
+                      'Failed to update user, check your network connection: $error');
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Failed to update user, check your network connection'),
+                      content: Text(
+                          'Failed to update user, check your network connection'),
                     ),
                   );
                 });
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child:const Text('Yes'),
+              child: const Text('Yes'),
             ),
           ],
         );
@@ -114,8 +215,8 @@ class DatabaseHelper {
     );
   }
 
-
-      static Future<void> orderCompleted(String orderid, String method,BuildContext context,String uid) async {
+  static Future<void> orderCompleted(
+      String orderid, String method, BuildContext context, String uid) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -133,10 +234,13 @@ class DatabaseHelper {
             TextButton(
               onPressed: () async {
                 await FirebaseFirestore.instance
-              .collection('CurrentOrders')
-              .doc(orderid)
-              .update(  {  'orderPayment':method=='online'?'online':'confirm','onProcess': false,'Completed': true})
-              .then((value) {
+                    .collection('CurrentOrders')
+                    .doc(orderid)
+                    .update({
+                  'orderPayment': method == 'online' ? 'online' : 'confirm',
+                  'onProcess': false,
+                  'Completed': true
+                }).then((value) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Order Completed successfully'),
@@ -145,19 +249,19 @@ class DatabaseHelper {
                 }).catchError((error) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Failed to Completed Order, Check your network connection'),
+                      content: Text(
+                          'Failed to Completed Order, Check your network connection'),
                     ),
                   );
                 });
 
-                 // Update orderPayment field to 'confirm' in user's order details
-         await FirebaseFirestore.instance
-              .collection('Users')
-              .doc(uid)
-              .collection('Orders')
-              .doc(orderid)
-              .update({'orderPayment': 'confirm'})
-              .then((value) {
+                // Update orderPayment field to 'confirm' in user's order details
+                await FirebaseFirestore.instance
+                    .collection('Users')
+                    .doc(uid)
+                    .collection('Orders')
+                    .doc(orderid)
+                    .update({'orderPayment': 'confirm'}).then((value) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Successfully updated to user'),
@@ -166,24 +270,20 @@ class DatabaseHelper {
                 }).catchError((error) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Failed to updated user, Check your network connection'),
+                      content: Text(
+                          'Failed to updated user, Check your network connection'),
                     ),
                   );
                 });
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child:const Text('Yes'),
+              child: const Text('Yes'),
             ),
           ],
         );
       },
     );
   }
-
-
-
-
-
 
   static removeGeneralProduct(BuildContext context, String productId) {
     showDialog(

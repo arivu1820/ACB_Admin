@@ -17,6 +17,13 @@ class FirebaseService {
       throw error; // Throw error to handle it in the UI if needed
     }
   }
+  Stream<QuerySnapshot> getCurrentAMCSubscription() {
+    return _firestore.collection('CurrentAMCSubscription').snapshots();
+  }
+
+    Stream<QuerySnapshot> getCompletedAMCSubscription() {
+    return _firestore.collection('CompletedAMCSubscription').snapshots();
+  }
 
   Stream<QuerySnapshot> getCurrentOrders() {
     return _firestore.collection('CurrentOrders').snapshots();

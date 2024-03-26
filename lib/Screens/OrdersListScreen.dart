@@ -9,10 +9,9 @@ import 'package:acb_admin/Models/FirebaseService.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/CustomDoneBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/CustomSwitch.dart';
-import 'package:url_launcher/link.dart';
 
 import 'package:acb_admin/Widgets/CombinedWidgets/OrdersListContainer.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'dart:html' as html;
 
 class OrdersListScreen extends StatefulWidget {
   final String orderid;
@@ -180,11 +179,11 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                               height: 10,
                             ),
                             GestureDetector(
-                              onTap: () => _launchMap(lat, lon),
+                              onTap: () => _copyMapUrl(lat, lon),
                               child: Row(
                                 children: [
                                   const Text(
-                                    'location',
+                                    'Location',
                                     style: TextStyle(
                                       fontFamily: 'LexendRegular',
                                       fontSize: 20,
@@ -195,7 +194,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                                     width: 10,
                                   ),
                                   Image.asset(
-                                    'Assets/share.png',
+                                    'Assets/copy.png',
                                     width: 20,
                                     height: 20,
                                     color: darkBlueColor,
@@ -247,18 +246,18 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                               height: 10,
                             ),
                             GestureDetector(
-                              onTap: widget.orderiscompleted?() =>
-                                  SharePartnerDialog.onDutypartner(
-                                widget.orderid,
-                                context,
-                                widget.orderiscompleted
-                              ): () =>
-                                  SharePartnerDialog.shareservicepartner(
-                                widget.orderid,
-                                context,
-                                                                widget.orderiscompleted
-
-                              ),
+                              onTap: widget.orderiscompleted
+                                  ? () => SharePartnerDialog.onDutypartner(
+                                      widget.orderid,
+                                      context,
+                                      widget.orderiscompleted,
+                                      false)
+                                  : () =>
+                                      SharePartnerDialog.shareservicepartner(
+                                          widget.orderid,
+                                          context,
+                                          widget.orderiscompleted,
+                                          false),
                               child: Row(
                                 children: [
                                   const Text(
@@ -349,7 +348,9 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                           if (completed)
                             GestureDetector(
                               onTap: () => DatabaseHelper.remove(
-                                  widget.orderid, context),
+                                context,
+                                widget.orderid,false
+                              ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -422,12 +423,16 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     );
   }
 
-  void _launchMap(String lat, String lon) async {
+  void _copyMapUrl(String lat, String lon) {
     String mapUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$lon';
-    if (await canLaunch(mapUrl)) {
-      await launch(mapUrl);
-    } else {
-      throw 'Could not launch $mapUrl';
-    }
+    html.window.navigator.clipboard?.writeText(mapUrl).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Copied'),
+        ),
+      );
+    }).catchError((error) {
+      print('Error copying to clipboard: $error');
+    });
   }
 }

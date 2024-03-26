@@ -71,6 +71,7 @@ class AMCSubContainer extends StatelessWidget {
                             color: blackColor,
                           ),
                         ),
+                      const  SizedBox(width: 10,),
                       ],
                     )
                   : Container(),
@@ -83,6 +84,7 @@ class AMCSubContainer extends StatelessWidget {
                   : Container(),
             ],
           ),
+          
           Row(
             children: [
               Expanded(
