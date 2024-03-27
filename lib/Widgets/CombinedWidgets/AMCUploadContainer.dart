@@ -111,7 +111,7 @@ class _AMCUploadContainerState extends State<AMCUploadContainer> {
                               width: 50,
                               height: 50,
                             )
-                          : Icon(Icons.add_photo_alternate, size: 50),
+                          :  Image.asset('Assets/upload.png',width: 50,height: 50,),
                 ),
                 const SizedBox(width: 20),
                 const Expanded(

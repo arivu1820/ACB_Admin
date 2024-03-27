@@ -9,6 +9,8 @@ class TextContainer extends StatelessWidget {
   final int limit;
   final bool isnum;
   final bool isedit;
+  final bool ispass;
+  final String placeholder;
   final int minCharacters; // New property for minimum characters
 
   TextContainer({
@@ -17,6 +19,8 @@ class TextContainer extends StatelessWidget {
     required this.limit,
     required this.isnum,
     required this.label,
+    this.placeholder = '',
+    this.ispass=false,
     this.isOptional = false,
     this.minCharacters = 1, // Set a default minimum character requirement
   });
@@ -42,14 +46,19 @@ class TextContainer extends StatelessWidget {
           ),
           TextFormField(
             enabled: isedit,
-            keyboardType: isnum ? TextInputType.number : TextInputType.text,
+            
+            
+            keyboardType: isnum ? TextInputType.number :  TextInputType.text,
             maxLength: limit,
+            obscureText: ispass,
+
             controller: controller,
             inputFormatters: [
               if (isnum) FilteringTextInputFormatter.allow(RegExp(r'\d')), // Allow only numeric characters
             ],
             decoration: InputDecoration(
               filled: true,
+              hintText: placeholder,
               fillColor: lightBlue20Color,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5.0),

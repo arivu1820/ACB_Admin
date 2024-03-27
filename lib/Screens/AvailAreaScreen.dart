@@ -1,8 +1,9 @@
 import 'package:acb_admin/Models/FirebaseService.dart';
+import 'package:acb_admin/Screens/AddAvailAreaScreen.dart';
 import 'package:acb_admin/Screens/AddGeneralProductsScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/OrdersContainer.dart';
-import 'package:acb_admin/Widgets/SingleWidgets/Appbar.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/AvailAreaListContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/GeneralProductsListContainer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,16 +11,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
-class GeneralProductsScreen extends StatelessWidget {
+class AvailAreaScreen extends StatelessWidget {
   final FirebaseService _firebaseService = FirebaseService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       backgroundColor: whiteColor,
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firebaseService.getGeneralProducts(),
+        stream: _firebaseService.getAvailArea(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -39,23 +39,10 @@ class GeneralProductsScreen extends StatelessWidget {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => AddGeneralProductsScreen(
-                              img: product['Image'],
-                              name: product['Name'],
-                              discount: product['Discount'],
-                              stock: product['Stock'],
-                              productId: product.id,
-                              mrp: product['MRP'],
-                            ),
+                            builder: (context) => AddAvailAreasScreen(productId: product.id,area: product['pincode'],)
                           ),
                         ),
-                        child: GeneralProductsListContainer(
-                          img: product[
-                              'Image'], // Assuming 'image' is the field containing the image URL
-                          title: product['Name'],
-                          productId: product
-                              .id, // Assuming 'name' is the field containing the product name
-                        ),
+                        child: AvailAreaListContainer(productId: product.id, title: product['pincode'])
                       );
                     },
                   ),
@@ -64,7 +51,7 @@ class GeneralProductsScreen extends StatelessWidget {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddGeneralProductsScreen(),
+                      builder: (context) => AddAvailAreasScreen(),
                     ),
                   ),
                   child: Container(

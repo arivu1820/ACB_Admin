@@ -1,5 +1,6 @@
 import 'package:acb_admin/Models/DataBaseHelper.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/sharepartnerdialog.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/Appbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -47,7 +48,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     final FirebaseService _firebaseService = FirebaseService();
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBarWidget(),
       body: StreamBuilder<DocumentSnapshot>(
         stream: _firebaseService.getOrderdetails(
             widget.orderid, widget.orderiscompleted),

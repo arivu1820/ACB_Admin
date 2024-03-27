@@ -3,6 +3,7 @@ import 'dart:js_util';
 import 'dart:typed_data';
 
 import 'package:acb_admin/Theme/Colors.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/Appbar.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextListContainer.dart';
@@ -259,7 +260,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: whiteColor,
-      appBar: AppBar(),
+      appBar: AppBarWidget(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,

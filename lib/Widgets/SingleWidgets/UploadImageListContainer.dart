@@ -95,14 +95,9 @@ class _UploadImageListContainerState extends State<UploadImageListContainer> {
                                   widget.onfetchedImagesremoved(
                                       removedimages);
                                 },
-                                child: const CircleAvatar(
-                                  backgroundColor: Colors.red,
+                                child: CircleAvatar(
                                   radius: 10,
-                                  child: Icon(
-                                    Icons.close,
-                                    size: 15,
-                                    color: Colors.white,
-                                  ),
+                                  child: Image.asset('Assets/Close_Cross_Icon.png',width: 20,height:20,),
                                 ),
                               ),
                             ),
@@ -142,14 +137,9 @@ class _UploadImageListContainerState extends State<UploadImageListContainer> {
                                   widget
                                       .onImagesSelected(widget.selectedImages);
                                 },
-                                child: const CircleAvatar(
-                                  backgroundColor: Colors.red,
+                                child:  CircleAvatar(
                                   radius: 10,
-                                  child: Icon(
-                                    Icons.close,
-                                    size: 15,
-                                    color: Colors.white,
-                                  ),
+                                  child:  Image.asset('Assets/Close_Cross_Icon.png',width: 20,height:20,),
                                 ),
                               ),
                             ),
@@ -165,7 +155,8 @@ class _UploadImageListContainerState extends State<UploadImageListContainer> {
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: Colors.blue),
                           ),
-                          child: Icon(Icons.add_photo_alternate),
+                          child:                             Image.asset('Assets/upload.png',width: 50,height: 50,),
+
                         ),
                       ),
                   ],

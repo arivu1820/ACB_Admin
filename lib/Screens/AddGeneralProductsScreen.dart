@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:acb_admin/Widgets/SingleWidgets/Appbar.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
@@ -173,7 +174,7 @@ class _AddGeneralProductsScreenState extends State<AddGeneralProductsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(),
+      appBar: AppBarWidget(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,

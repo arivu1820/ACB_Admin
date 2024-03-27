@@ -6,6 +6,7 @@ import 'package:acb_admin/Screens/addwetwashservice.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/ListItemsandAddItems.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/ServicesListItemsandAddItems.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/Appbar.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/EditandSubmitBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/SingleImageUploadContainer.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/TextContainer.dart';
@@ -161,7 +162,7 @@ class _WetWashScreenState extends State<WetWashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: whiteColor,
-      appBar: AppBar(),
+      appBar: AppBarWidget(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,

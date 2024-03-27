@@ -1,10 +1,14 @@
 import 'package:acb_admin/Models/NavItem.dart';
 import 'package:acb_admin/Screens/AMCSubScreen.dart';
+import 'package:acb_admin/Screens/AvailAreaScreen.dart';
+import 'package:acb_admin/Screens/BannersScreen.dart';
 import 'package:acb_admin/Screens/CompletedAMCSubScreen.dart';
 import 'package:acb_admin/Screens/CompletedOrdersScreen.dart';
 import 'package:acb_admin/Screens/GeneralProductsScreen.dart';
+import 'package:acb_admin/Screens/LogoutScreen.dart';
 import 'package:acb_admin/Screens/OrdersScreen.dart';
 import 'package:acb_admin/Screens/ProductsScreen.dart';
+import 'package:acb_admin/Screens/ServicePartnerScreen.dart';
 import 'package:acb_admin/Screens/ServicesScreen.dart';
 import 'package:acb_admin/Theme/Colors.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +25,15 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<NavItem> navItems = [
     NavItem("Orders"),
     NavItem("AMC Subscription"),
+    NavItem("Banners"),
+    NavItem("Service Areas"),
     NavItem("General Products"),
     NavItem("AC Products"),
-        NavItem("Services"),
-
+    NavItem("Services"),
     NavItem("Completed Orders"),
     NavItem("Completed AMC Subscription"),
+    NavItem("Service Partners"),
+    NavItem("Logout"),
   ];
 
   @override
@@ -105,11 +112,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   OrdersScreen(),
                   AMCSubScreen(),
+                  BannersScreen(),
+                  AvailAreaScreen(),
                   GeneralProductsScreen(),
                   ProductsScreen(),
                   ServicesScreen(),
                   CompletedOrdersScreen(),
                   CompletedAMCSubScreen(),
+                  ServicePartnerScreen(),
+                  LogoutScreen(),
                 ],
               ),
             ),

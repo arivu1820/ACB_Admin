@@ -21,6 +21,14 @@ class FirebaseService {
     return _firestore.collection('CurrentAMCSubscription').snapshots();
   }
 
+   Stream<QuerySnapshot> getAvailArea() {
+    return _firestore.collection('AvailableArea').snapshots();
+  }
+
+  Stream<QuerySnapshot> getServicePartners() {
+    return _firestore.collection('ServicePartner').snapshots();
+  }
+
     Stream<QuerySnapshot> getCompletedAMCSubscription() {
     return _firestore.collection('CompletedAMCSubscription').snapshots();
   }
@@ -56,12 +64,21 @@ class FirebaseService {
         .snapshots();
   }
 
+    Stream<DocumentSnapshot> getHomepageBanner() {
+    return _firestore.collection('BannerImages').doc('HomePageBanner').snapshots();
+  }
+
+      Stream<DocumentSnapshot> getCartpageBanner() {
+    return _firestore.collection('BannerImages').doc('CartPageBanner').snapshots();
+  }
+
   Stream<DocumentSnapshot> getServicesBanner() {
     return _firestore
         .collection('Services')
         .doc('hWHRjpawA5D6OTbrjn3h')
         .snapshots();
   }
+
 
   Stream<DocumentSnapshot> GeneralService() {
     return _firestore

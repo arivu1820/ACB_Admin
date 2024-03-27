@@ -3,6 +3,7 @@ import 'package:acb_admin/Theme/Colors.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/AMCServiceListContainer.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/AMCSubListContainer.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/sharepartnerdialog.dart';
+import 'package:acb_admin/Widgets/SingleWidgets/Appbar.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/CustomDoneBtn.dart';
 import 'package:acb_admin/Widgets/SingleWidgets/CustomSwitch.dart';
 import 'package:acb_admin/Widgets/CombinedWidgets/OrdersListContainer.dart';
@@ -70,7 +71,7 @@ class _OrdersListScreenState extends State<AMCSubListScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBarWidget(),
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(20),

@@ -77,6 +77,8 @@ flutter:
     - Assets/Close_Cross_Icon.png
     - Assets/share.png
     - Assets/copy.png
+    - Assets/upload.png
+    - Assets/BackArrow.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

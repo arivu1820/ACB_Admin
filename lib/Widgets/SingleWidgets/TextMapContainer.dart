@@ -1,6 +1,8 @@
 import 'package:acb_admin/Theme/Colors.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 class TextMapContainer extends StatefulWidget {
   final TextEditingController firstcontroller;
@@ -177,21 +179,25 @@ class _TextMapContainerState extends State<TextMapContainer> {
                   padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
                   child: Row(
                     children: [
-                      Text(
-                        key,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontFamily: "LexendRegular",
-                          color: blackColor,
+                      Flexible(
+                        child: Text(
+                          key,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontFamily: "LexendRegular",
+                            color: blackColor,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Text(
-                        value.toString(),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontFamily: "LexendRegular",
-                          color: blackColor,
+                      Flexible(
+                        child: Text(
+                          value.toString(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontFamily: "LexendRegular",
+                            color: blackColor,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),

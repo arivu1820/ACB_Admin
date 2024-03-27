@@ -285,6 +285,98 @@ class DatabaseHelper {
     );
   }
 
+     static removeServicePartner(BuildContext context, String productId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove Service Partner?'),
+          content: const Text(
+              'Are you sure you want to remove this Service Partner? This action will reflect in partner list'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                FirebaseFirestore.instance
+                    .collection('ServicePartner')
+                    .doc(productId)
+                    .delete()
+                    .then((value) {
+                  print('ServicePartner with ID $productId removed successfully');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('ServicePartner removed successfully'),
+                    ),
+                  );
+                }).catchError((error) {
+                  print('Failed to remove ServicePartner: $error');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to remove ServicePartner'),
+                    ),
+                  );
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+   static removeAvailArea(BuildContext context, String productId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove Area?'),
+          content: const Text(
+              'Are you sure you want to remove this area? This action will reflect for all users.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                FirebaseFirestore.instance
+                    .collection('AvailableArea')
+                    .doc(productId)
+                    .delete()
+                    .then((value) {
+                  print('Area with ID $productId removed successfully');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Area removed successfully'),
+                    ),
+                  );
+                }).catchError((error) {
+                  print('Failed to remove area: $error');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to remove area'),
+                    ),
+                  );
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   static removeGeneralProduct(BuildContext context, String productId) {
     showDialog(
       context: context,
