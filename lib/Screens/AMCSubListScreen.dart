@@ -134,9 +134,9 @@ class _OrdersListScreenState extends State<AMCSubListScreen> {
               GestureDetector(
                 onTap: widget.iscompleted
                     ? () => SharePartnerDialog.onDutypartner(
-                        widget.orderid, context, widget.iscompleted, true)
+                        widget.orderid, context, widget.iscompleted, true,widget.serviceno)
                     : () => SharePartnerDialog.shareservicepartner(
-                        widget.orderid, context, widget.iscompleted, true),
+                        widget.orderid, context, widget.iscompleted, true,widget.serviceno),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

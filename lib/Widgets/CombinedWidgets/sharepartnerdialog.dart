@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class SharePartnerDialog {
   static Future<void> shareservicepartner(String orderid, BuildContext context,
-      bool orderiscompleted, bool isamc) async {
+      bool orderiscompleted, bool isamc,String serviceno) async {
     List<Map<String, String>> selectedPartners = [];
 
     await showDialog<void>(
@@ -55,7 +55,7 @@ class SharePartnerDialog {
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
-                      onDutypartner(orderid, context, orderiscompleted, isamc);
+                      onDutypartner(orderid, context, orderiscompleted, isamc,serviceno);
                     },
                     child: const Text(
                       'View OnDuty Partner',
@@ -71,10 +71,10 @@ class SharePartnerDialog {
                   TextButton(
                     onPressed: () async {
                       await shareOrderDetailsWithPartners(
-                          orderid, selectedPartners, isamc);
+                          orderid, selectedPartners, isamc,serviceno);
 
                       Navigator.of(context).pop();
-                      onDutypartner(orderid, context, orderiscompleted, isamc);
+                      onDutypartner(orderid, context, orderiscompleted, isamc,serviceno);
                     },
                     child: Text('Share'),
                   ),
@@ -88,7 +88,7 @@ class SharePartnerDialog {
   }
 
   static Future<void> shareOrderDetailsWithPartners(String orderid,
-      List<Map<String, String>> selectedPartners, bool isamc) async {
+      List<Map<String, String>> selectedPartners, bool isamc,String serviceno) async {
     // Get order details from CurrentOrders collection
     if (isamc) {
       DocumentSnapshot orderSnapshot = await FirebaseFirestore.instance
@@ -110,6 +110,7 @@ class SharePartnerDialog {
             .collection('CurrentAMCOrdersDetails')
             .doc(orderid)
             .set({
+              'serviceno':serviceno,
           ...orderDetails, // Assuming orderDetails is a Map<String, dynamic>
           'currentTime': DateTime.now(), // Add current time field
         });
@@ -164,7 +165,7 @@ class SharePartnerDialog {
   }
 
   static Future<void> onDutypartner(String orderid, BuildContext context,
-      bool isordercompleted, bool isamc) async {
+      bool isordercompleted, bool isamc,String serviceno) async {
     await showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -214,7 +215,7 @@ class SharePartnerDialog {
                       onPressed: () {
                         Navigator.of(context).pop();
                         shareservicepartner(orderid, context, isordercompleted,
-                            isamc); // Close the dialog
+                            isamc,serviceno); // Close the dialog
                       },
                       child: const Text('Back'),
                     ),

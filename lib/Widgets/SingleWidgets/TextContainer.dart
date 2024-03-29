@@ -48,7 +48,7 @@ class TextContainer extends StatelessWidget {
             enabled: isedit,
             
             
-            keyboardType: isnum ? TextInputType.number :  TextInputType.text,
+            keyboardType: isnum ? TextInputType.numberWithOptions(decimal: true) :  TextInputType.text,
             maxLength: limit,
             obscureText: ispass,
 
